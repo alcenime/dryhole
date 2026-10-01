@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DRYHOLE</title>
+<style>
+:root{
+  --bg:#080C0B; --panel:#101614; --line:#26302A;
+  --lime:#B8FF00; --text:#E8ECE5; --mute:#7B847C;
+  --sans:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:1px solid var(--lime);outline-offset:2px}
+.label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mute);text-transform:uppercase}
+.wrap{min-height:100vh;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;justify-content:center;padding:22px 24px;border-bottom:1px solid var(--line)}
+.top b{font-size:20px;font-weight:700;letter-spacing:.22em;padding-left:.22em}
+.top .live{display:flex;align-items:center;gap:8px;color:var(--lime)}
+.top .live i{width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime)}
+main{flex:1;width:100%}
+.in{max-width:880px;margin:0 auto;padding:0 24px}
+.dv.in{padding-top:56px;padding-bottom:72px}
+.hero h1{margin-top:16px;font-size:clamp(44px,11vw,96px);line-height:1;font-weight:700;letter-spacing:.06em}
+.hero .tag{margin-top:22px;font-size:clamp(16px,2.4vw,20px);line-height:1.5}
+.hero .tag i{display:block;color:var(--mute);font-style:normal}
+.hero .intro{margin-top:20px;max-width:560px;font-size:15px;line-height:1.65;color:var(--mute)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:3px}
+.ph{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line)}
+.cta{display:inline-block;padding:14px 22px;border:1px solid var(--line);border-radius:3px;font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--text);text-transform:uppercase;text-align:center;transition:border-color .15s,color .15s,background .15s}
+.cta:hover{border-color:var(--lime);color:var(--lime)}
+.cta.pri{background:var(--lime);border-color:var(--lime);color:var(--bg);font-weight:600}
+.cta.pri:hover{background:transparent;color:var(--lime)}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.how{margin-top:80px}
+.how>h2{margin-top:10px;font-family:var(--mono);font-size:18px;font-weight:600;letter-spacing:.14em}
+.intro-blk{margin-top:24px;padding:22px 22px 24px;border-left:2px solid var(--lime)}
+.intro-blk p,.sx p{font-size:15px;line-height:1.75;color:#B9C1B8}
+.intro-blk p+p,.sx p+p{margin-top:14px}
+.intro-blk b,.sx b{color:var(--text);font-weight:600}
+.sx{margin-top:16px;display:grid;grid-template-columns:150px minmax(0,1fr)}
+.sx .meta{padding:20px 18px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.sx .meta .n{font-family:var(--mono);font-size:22px;font-weight:600;color:var(--lime);letter-spacing:.04em}
+.sx .meta .label b{display:block;margin-top:4px;color:var(--text);font-weight:400}
+.sx .body{padding:20px 22px 24px}
+.sx h3{font-family:var(--mono);font-size:15px;font-weight:600;letter-spacing:.16em}
+.sx h3+p{margin-top:14px}
+.chain{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;color:var(--mute)}
+.chain span{padding:6px 10px;border:1px solid var(--line);border-radius:2px;color:var(--text)}
+.chain i{font-style:normal;color:var(--lime)}
+.xs{margin-top:18px;max-width:420px;border:1px solid var(--line);border-radius:3px;background:var(--bg);font-family:var(--mono);font-size:11px;letter-spacing:.14em}
+.xs div{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;border-top:1px solid var(--line);color:var(--mute)}
+.xs div:first-child{border-top:0;color:var(--text);border-bottom:2px solid var(--mute)}
+.xs div:last-child{color:var(--lime)}
+.cycle{margin-top:16px;padding:26px 22px 28px}
+.cyc{max-width:420px;margin:24px auto 0;display:flex;flex-direction:column;align-items:stretch}
+.cyc .nd{padding:14px 18px;border:1px solid var(--line);border-radius:3px;background:var(--bg)}
+.cyc .nd b{display:block;font-family:var(--mono);font-size:14px;letter-spacing:.18em;font-weight:600}
+.cyc .nd span{display:block;margin-top:6px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--mute)}
+.cyc .nd.end{border-color:rgba(184,255,0,.5)}
+.cyc .ar{height:26px;display:flex;align-items:center;justify-content:center;position:relative;color:var(--lime);font-family:var(--mono)}
+.cyc .ar:before{content:"";position:absolute;left:50%;top:0;bottom:12px;width:1px;background:var(--line)}
+.cyc .ar i{position:relative;font-style:normal;background:var(--panel);line-height:1;margin-top:10px}
+.cycle .fin{margin-top:28px;padding-top:22px;border-top:1px solid var(--line)}
+.cycle .fin p{font-size:15px;line-height:1.75;color:#B9C1B8}
+.cycle .fin p+p{margin-top:14px}
+.note{margin-top:20px}
+#how-it-works{scroll-margin-top:24px}
+.chain.full{margin-top:22px}
+.foot{display:flex;justify-content:space-between;gap:12px;padding:18px 24px;border-top:1px solid var(--line)}
+@media (max-width:860px){
+  .sx{grid-template-columns:1fr}
+  .sx .meta{flex-direction:row;align-items:center;justify-content:space-between;border-right:0;border-bottom:1px solid var(--line);padding:14px 18px}
+}
+@media (max-width:560px){
+  .actions .cta{display:block;width:100%}
+  .actions{flex-direction:column}
+}
+.hero{position:relative}
+.coord{position:absolute;right:0;top:0;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--mute)}
+.orn{margin:68px auto;display:flex;flex-direction:column;align-items:center;width:100%;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--mute)}
+.orn .hl{display:flex;align-items:center;gap:12px;width:100%}
+.orn .hl:before,.orn .hl:after{content:"";flex:1;height:1px;background:var(--line)}
+.orn .hot{color:var(--lime)}
+.orn .vl{position:relative;width:1px;height:44px;background:linear-gradient(var(--line),var(--mute))}
+.orn .vl:after{content:"";position:absolute;left:-3px;bottom:-5px;border:3.5px solid transparent;border-top:6px solid var(--mute)}
+.core>h2,.cyc-sec>h2{margin-top:10px;font-size:clamp(26px,4.6vw,40px);line-height:1.05;font-weight:700;letter-spacing:.04em}
+.two{margin-top:26px;display:grid;grid-template-columns:1fr 110px 1fr}
+.lay{padding:24px 22px 28px}
+.lay h3{margin-top:12px;font-family:var(--mono);font-size:26px;letter-spacing:.14em}
+.lay .t{margin-top:10px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--lime);text-transform:uppercase}
+.lay p+p{margin-top:12px;font-size:14.5px;line-height:1.7;color:#B9C1B8}
+.lnk{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border-left:1px solid var(--line);border-right:1px solid var(--line);background:var(--bg)}
+.lnk i{position:relative;width:60%;height:1px;background:var(--lime)}
+.lnk i:after{content:"";position:absolute;right:-1px;top:-3px;border:3.5px solid transparent;border-left:6px solid var(--lime)}
+.cap{margin-top:16px;max-width:620px;font-size:14.5px;line-height:1.7;color:var(--mute)}
+.ep{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.ep b{font-family:var(--mono);font-size:clamp(20px,4vw,30px);letter-spacing:.12em;color:var(--lime)}
+.cycle .cyc{max-width:480px}
+.cyc .nd{position:relative}
+.cyc .nd em{position:absolute;right:14px;top:14px;font-style:normal;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--mute)}
+.cyc .lp{margin-top:14px;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--lime)}
+.fcta{margin-top:88px;padding:56px 0 8px;border-top:1px solid var(--line);text-align:left}
+.fcta h2{margin-top:12px;font-size:clamp(28px,6vw,52px);line-height:1.05;font-weight:700;letter-spacing:.03em}
+.fcta h2 span{display:block;color:var(--mute)}
+.dv{animation:fadein .35s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.dv{animation:none}}
+.dv-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.dv h1{margin-top:28px;font-size:clamp(34px,7vw,64px);line-height:1.02;font-weight:700;letter-spacing:.03em}
+.dv h1 span{display:block;color:var(--mute)}
+.stat{margin-top:20px;display:inline-flex;gap:14px;padding:10px 14px;border:1px solid var(--line);border-left:2px solid var(--lime);border-radius:3px}
+.dv-grid{margin-top:40px;display:grid;grid-template-columns:210px minmax(0,1fr);gap:48px;align-items:start}
+.toc{position:sticky;top:24px;display:flex;flex-direction:column;border-left:1px solid var(--line)}
+.toc a{padding:9px 14px;margin-left:-1px;border-left:1px solid transparent;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--mute);text-transform:uppercase;transition:color .15s,border-color .15s}
+.toc a:hover{color:var(--lime);border-left-color:var(--lime)}
+.toc a i{font-style:normal;color:var(--lime);margin-right:10px}
+.ds{scroll-margin-top:16px;padding-top:36px;margin-top:36px;border-top:1px solid var(--line);max-width:680px}
+.ds:first-child{margin-top:0;padding-top:0;border-top:0}
+.ds h2{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+.ds h2 i{font-style:normal;color:var(--lime);margin-right:10px}
+.ds p{margin-top:14px;font-size:15.5px;line-height:1.75;color:#B9C1B8}
+.ds p b{color:var(--text);font-weight:600}
+.kv{margin-top:18px;border:1px solid var(--line);border-radius:3px;background:var(--panel)}
+.kv div{display:flex;justify-content:space-between;gap:12px;padding:13px 16px;border-top:1px solid var(--line);font-family:var(--mono);font-size:12.5px;letter-spacing:.08em}
+.kv div:first-child{border-top:0}
+.kv span:first-child{color:var(--mute);text-transform:uppercase}
+@media (max-width:860px){
+  .two{grid-template-columns:1fr}
+  .lnk{flex-direction:row;height:56px;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .lnk i{width:1px;height:26px;order:2}
+  .lnk i:after{right:-3px;top:auto;bottom:-5px;border:3.5px solid transparent;border-top:6px solid var(--lime);border-left-color:transparent}
+  .dv-grid{grid-template-columns:1fr;gap:28px}
+  .toc{position:static;flex-direction:row;flex-wrap:wrap;border-left:0;gap:2px 18px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+  .toc a{padding:8px 0;border-left:0;font-size:13px}
+  .toc a:hover{border-left:0}
+}
+.banner{position:relative;padding:64px 28px 0;border:1px solid var(--line);border-radius:3px;background:var(--panel);text-align:center;overflow:hidden}
+.banner:before,.banner:after{content:"";position:absolute;width:14px;height:14px;border:0 solid var(--lime)}
+.banner:before{left:-1px;top:-1px;border-width:2px 0 0 2px}
+.banner:after{right:-1px;top:-1px;border-width:2px 2px 0 0}
+.banner .coord{right:18px;top:16px}
+.banner h1{margin-top:18px;font-size:clamp(52px,14vw,120px);line-height:1;font-weight:700;letter-spacing:.06em;padding-left:.06em}
+.banner .tag{margin-top:22px;font-size:clamp(17px,2.6vw,22px);line-height:1.5}
+.banner .tag i{display:block;color:var(--mute);font-style:normal}
+.bi{margin:44px auto 0;max-width:600px;text-align:left}
+.bl{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.bl:before,.bl:after{content:"";flex:1;height:1px;background:var(--line)}
+.bi p{font-size:15px;line-height:1.75;color:#B9C1B8;text-align:center}
+.bi p+p{margin-top:14px}
+.bi b{color:var(--text);font-weight:600}
+.bshaft{margin-top:36px;display:flex;flex-direction:column;align-items:center;font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--mute)}
+.bshaft i{width:1px;height:56px;background:linear-gradient(var(--line),var(--lime))}
+.bshaft span{display:none}
+@media (max-width:560px){.banner{padding:52px 18px 0}.banner .coord{position:static;display:block;margin-bottom:14px;text-align:right}}
+
+.band{position:relative;padding:80px 0;background:var(--bgc,var(--bg));color:var(--text)}
+.band.dark{--bgc:#080C0B}
+.band.green{--bgc:#142018;--panel:#0E1711;--line:#2C3F32}
+.band.cream{--bgc:#E8E8DD;--bg:#E8E8DD;--panel:#F0F0E7;--line:#BDBFB0;--mute:#586159;--text:#111513;--lm:#6FA000;color:#111513}
+.seam{position:absolute;left:50%;top:0;transform:translate(-50%,-50%);padding:5px 12px;border:1px solid var(--line);background:var(--bgc);font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--mute);z-index:2}
+.big{margin-top:12px;font-size:clamp(34px,8vw,68px);line-height:1;font-weight:700;letter-spacing:.02em}
+.hero{padding:56px 0 72px;text-align:center}
+.hero-txt{position:relative;padding-top:8px}
+.hero .coord{position:static;display:block;text-align:right;margin-bottom:22px}
+.hero h1{margin-top:16px;font-size:clamp(52px,14vw,120px);line-height:1;font-weight:700;letter-spacing:.06em;padding-left:.06em}
+.hero .tag{margin-top:22px;font-size:clamp(17px,2.6vw,22px);line-height:1.5}
+.hero .tag i{display:block;color:var(--mute);font-style:normal}
+.hero .actions{justify-content:center}
+.field{display:block;width:100%;max-width:400px;height:auto;margin:40px auto 44px}
+.field .tx text{font-family:var(--mono);font-size:11px;letter-spacing:.14em;fill:#7F8882}
+.ln{fill:none;stroke:var(--line);stroke-width:1}
+.lm{fill:none;stroke:var(--lime);stroke-width:1.6}
+.lf{fill:var(--lime)}
+.cream .lm{stroke:#6FA000}.cream .lf{fill:#6FA000}
+.ico{position:absolute;right:18px;top:18px;width:46px;height:46px;opacity:.9}
+.ico .ln{stroke:#7B847C}
+.sx .body{position:relative;padding-right:76px}
+.two2{margin-top:44px;display:grid;grid-template-columns:1fr 130px 1fr;gap:28px;align-items:center}
+.lyr h3{margin-top:10px;font-size:clamp(44px,9vw,72px);line-height:1;font-weight:700;letter-spacing:.03em}
+.lyr .t{margin-top:12px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#111513;border-left:3px solid var(--lime);padding-left:10px}
+.lyr p{margin-top:14px;font-size:16px;line-height:1.65;color:#2B312D}
+.sch{display:flex;flex-direction:column;align-items:center}
+.sch span{width:100%;padding:10px 0;text-align:center;border:1px solid #111513;font-family:var(--mono);font-size:12px;letter-spacing:.16em}
+.sch span.hot{background:var(--lime)}
+.sch i{position:relative;width:2px;height:30px;background:#6FA000}
+.sch i:after{content:"";position:absolute;left:-5px;bottom:-2px;border:6px solid transparent;border-top:9px solid #6FA000;border-bottom:0}
+.cream .cap{color:#3B433D;font-size:15.5px}
+.cyc2{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.eqn{margin-top:24px;font-family:var(--mono);font-size:clamp(20px,4vw,28px);letter-spacing:.1em;padding:10px 14px;display:inline-block;background:var(--lime);color:#111513;font-weight:600}
+.cream .chain span{border-color:#111513;color:#111513}
+.cream .chain i{color:#5F8C00;font-weight:700}
+.cream .cyc{margin:0;max-width:none}
+.cream .cyc .nd{background:transparent;border-color:#111513}
+.cream .cyc .nd b{color:#111513}
+.cream .cyc .nd.end{background:var(--lime)}
+.cream .cyc .nd.end span{color:#2B312D}
+.cream .cyc .ar i{background:var(--bgc);color:#5F8C00;font-weight:700}
+.cream .cyc .ar:before{background:#111513}
+.cream .cyc .lp{color:#3F6500}
+.cream .chain.full{margin-top:22px}
+.ctab{overflow:hidden;padding:96px 0}
+.ctab .tex{position:absolute;left:0;right:0;bottom:0;width:100%;height:70%;opacity:.5;pointer-events:none}
+.ctab .in{position:relative}
+.ctab .cap{margin-top:16px;color:var(--mute);font-size:16px}
+.ctab .actions{margin-top:28px}
+.how{margin-top:0}
+@media (max-width:860px){
+  .band{padding:64px 0}
+  .two2,.cyc2{grid-template-columns:1fr;gap:28px}
+  .sch{flex-direction:row;justify-content:center;gap:0}
+  .sch span{width:auto;padding:10px 12px}
+  .sch i{width:22px;height:2px}
+  .sch i:after{left:auto;right:-2px;bottom:auto;top:-5px;border:6px solid transparent;border-left:9px solid #6FA000;border-right:0}
+}
+@media (max-width:560px){.sx .body{padding-right:18px;padding-top:70px}.ico{left:18px;right:auto}}
+
+.hero{padding:40px 0 56px;text-align:left}
+.hbanner{display:grid;grid-template-columns:57fr 43fr;grid-template-rows:auto 1fr auto;border:1px solid var(--line);border-radius:3px;background:var(--panel);overflow:hidden}
+.hbar{grid-column:1/-1;display:flex;justify-content:space-between;gap:12px;padding:12px 20px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--mute)}
+.hbar:first-child{border-bottom:1px solid var(--line)}
+.hbar:last-child{border-top:1px solid var(--line)}
+.hl{padding:40px 36px 40px 28px}
+.hero h1{margin-top:16px;font-size:clamp(46px,8.4vw,92px);padding-left:0;letter-spacing:.05em}
+.hero .tag{margin-top:20px}
+.hero .bi{margin:32px 0 0;max-width:none}
+.hero .bl:before{display:none}
+.hero .bi p{text-align:left;font-size:15.5px;line-height:1.7}
+.hero .actions{justify-content:flex-start;margin-top:30px}
+.hv{border-left:1px solid var(--line);background:#0B110E;display:flex;align-items:center}
+.rig{display:block;width:100%;height:auto}
+.rig .rg{fill:none;stroke:#7B847C;stroke-width:1.3}
+.rig .tx text{font-family:var(--mono);font-size:11px;letter-spacing:.14em;fill:#9AA39C}
+.hero @media (max-width:860px){
+  .hbanner{grid-template-columns:1fr}
+  .hv{border-left:0;border-top:1px solid var(--line)}
+  .hl{padding:32px 20px 32px}
+  .rig{max-height:380px}
+}
+
+.top{justify-content:space-between;gap:12px}
+.top b{padding-left:0;font-size:18px;letter-spacing:.2em}
+.tnav{display:flex;align-items:center;gap:18px}
+.tnav a{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);transition:color .15s}
+.tnav a:hover{color:var(--lime)}
+.tnav .tbtn{padding:9px 12px;background:var(--lime);color:#080C0B;font-weight:600;border-radius:3px;border:1px solid var(--lime)}
+.tnav .tbtn:hover{background:transparent;color:var(--lime)}
+.hero{padding:0 0 56px}
+.hbanner{min-height:0;border-width:0 0 1px;border-radius:0}
+.hero h1{font-size:clamp(46px,9vw,120px)}
+.hl{display:flex;flex-direction:column;justify-content:center;padding-left:max(24px,calc((100vw - 880px)/2))}
+@media (max-width:860px){.hl{padding-left:20px}}
+@media (max-width:560px){.top{padding:16px}.top b{font-size:16px;letter-spacing:.16em}.tnav{gap:12px}.tnav a{font-size:10.5px;letter-spacing:.1em}.tnav .tbtn{padding:8px 10px}}
+.soon-m{position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(4,7,6,.78)}
+.soon-b{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line);border-top:2px solid var(--lime);border-radius:3px;padding:26px 22px 22px}
+.soon-b h3{margin-top:10px;font-size:26px;font-weight:700;letter-spacing:.08em}
+.soon-b p{margin-top:12px;font-size:14.5px;line-height:1.65;color:#B9C1B8}
+.soon-b .actions{margin-top:22px;justify-content:flex-start}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <b>DRYHOLE</b>
+    <nav class="tnav" aria-label="Links"><a href="#" id="xLink" data-href="https://x.com/dryholedrill">X</a><a href="#docs">Docs</a><a class="tbtn" href="home">Open App</a></nav>
+  </header>
+
+  <main>
+    <div id="landing">
+    <div class="band dark hero">
+        <div class="hbanner">
+          <div class="hbar"><span>SECTOR 04 / GRID 17</span><span>EPOCH &mdash;</span></div>
+          <div class="hl">
+            <div class="label">DRYHOLE Protocol</div>
+            <h1>DRYHOLE</h1>
+            <p class="tag">Find something.<i>Or find nothing.</i></p>
+            <div class="bi">
+              <div class="label bl"><span>Introduction</span></div>
+              <p>DRYHOLE is built around a repeating <b>Epoch</b> cycle. Every Epoch is one complete protocol cycle, and <b>1 day = 1 Epoch</b>.</p>
+              <p>The same cycle is used across the whole system. Drilling, token activity and staking all operate inside the same protocol rhythm, so each part of DRYHOLE can be understood by reference to the Epoch it belongs to.</p>
+            </div>
+            <div class="actions"><a class="cta pri" href="home">Open App</a><a class="cta" href="#docs">View Docs</a></div>
+          </div>
+          <div class="hv"><svg class="rig" viewBox="0 0 400 460" role="img" aria-label="Schematic of a drilling rig above layered ground with a vertical drill shaft marked surface, unknown, depth and result">
+          <defs><pattern id="g2" width="28" height="28" patternUnits="userSpaceOnUse"><path class="ln" d="M28 0H0V28" opacity=".5"/></pattern></defs>
+          <rect y="170" width="400" height="290" fill="#0B110E"/><rect y="170" width="400" height="290" fill="url(#g2)"/>
+          <path class="rg" d="M0 170H400"/>
+          <path class="ln" d="M0 218q50-12 100 0t100 0 100 0 100 0"/><path class="ln" d="M0 272q50 12 100 0t100 0 100 0 100 0"/><path class="ln" d="M0 330q50-10 100 0t100 0 100 0 100 0"/><path class="ln" d="M0 392q50 10 100 0t100 0 100 0 100 0"/>
+          <path class="rg" d="M150 170L200 40L250 170M170 170L200 40L230 170"/>
+          <path class="rg" d="M160 140H240M170 112H230M180 84H220M160 140L230 112M240 140L170 112M170 112L220 84M230 112L180 84"/>
+          <rect class="rg" x="190" y="30" width="20" height="10"/><path class="rg" d="M140 170v8M260 170v8M130 178H270"/>
+          <path class="lm" d="M200 40V330"/><path class="lm" d="M200 330V420" stroke-dasharray="3 6"/>
+          <path class="lf" d="M191 322h18l-9 20z"/><path class="lf" d="M193 420h14l-7 14z"/>
+          <path class="ln" d="M28 170V440"/><path class="ln" d="M22 200h12M22 230h12M22 260h12M22 290h12M22 320h12M22 350h12M22 380h12M22 410h12"/>
+          <g class="tx"><text x="42" y="196">DEPTH —</text><text x="262" y="162">SURFACE</text><text x="216" y="262">DRILL</text><text x="216" y="372">UNKNOWN</text><text x="216" y="440">RESULT</text></g>
+          <path class="rg" d="M250 170h8"/>
+        </svg></div>
+          <div class="hbar"><span>STATUS: IN DEVELOPMENT</span><span>DEPTH &mdash;</span></div>
+        </div>
+    </div>
+    <div class="band cream"><div class="seam">SURFACE</div>
+      <div class="in">
+        <div class="label">Core concept</div>
+        <h2 class="big">TWO LAYERS,<br>ONE CYCLE</h2>
+        <div class="two2">
+          <div class="lyr"><div class="label">Layer 01</div><h3>NFT</h3><div class="t">The drilling asset</div><p>The NFT is the asset that participates in DRILL during each Epoch.</p></div>
+          <div class="sch" aria-hidden="true"><span>NFT</span><i></i><span class="hot">DRILL</span><i></i><span>TOKEN</span></div>
+          <div class="lyr"><div class="label">Layer 02</div><h3>TOKEN</h3><div class="t">The economic utility layer</div><p>The token links participation to the economic layer and powers Stake and Swap.</p></div>
+        </div>
+        <p class="cap">Both layers run on the same Epoch cycle. Token mechanics are still in development.</p>
+      </div>
+    </div>
+    <div class="band green"><div class="seam">SUBSURFACE</div>
+      <div class="in">
+    <section class="how" id="how-it-works" aria-labelledby="howTitle">
+      <div class="label">Protocol</div>
+      <h2 id="howTitle">HOW IT WORKS</h2>
+
+      <article class="panel sx">
+        <div class="meta"><div class="n">01</div><div class="label">Status<b>Defined</b></div></div>
+        <div class="body"><svg class="ico" viewBox="0 0 52 52" aria-hidden="true"><circle class="ln" cx="26" cy="26" r="19"/><path class="lm" d="M26 7A19 19 0 1 1 7 26"/><path class="lf" d="M3 22l4 6 4-6z"/></svg><h3>EPOCH</h3><p><b>1 Epoch = 1 day.</b> The Epoch is the basic, synchronized time unit of DRYHOLE. Every protocol system operates around the same Epoch cycle, so activity in one part of the system can always be placed in the same timeline as the rest.</p><p>When an Epoch ends, the current cycle settles and the next Epoch begins. Epochs give drilling a defined window, let activity and rewards be measured by cycle, and keep the ecosystem in step. No further Epoch rules are defined here.</p><div class="chain"><span>EPOCH N</span><i>&rarr;</i><span>SETTLE</span><i>&rarr;</i><span>EPOCH N+1</span></div></div>
+      </article>
+      <article class="panel sx">
+        <div class="meta"><div class="n">02</div><div class="label">Status<b>Concept defined / rules in development</b></div></div>
+        <div class="body"><svg class="ico" viewBox="0 0 52 52" aria-hidden="true"><path class="ln" d="M4 10h44M4 22h44M4 34h44M4 46h44"/><path class="lm" d="M26 4v34"/><path class="lf" d="M21 36h10l-5 9z"/></svg><h3>DRILL</h3><p>DRYHOLE NFTs are the drilling assets. A holder enters DRILL with an eligible NFT, and during an active Epoch the NFT takes part in the drilling process. The relationship is simple: <b>NFT &rarr; DRILL &rarr; TOKEN</b>.</p><p>The <b>Cross Section</b> shows what lies beneath the surface. The drill starts at the surface, moves into the subsurface, and the reading stays unknown until drilling produces a result: a discovery or a dry result. Drilling rates, depths and rewards are still in development.</p><div class="xs"><div><span>SURFACE</span><span>START</span></div><div><span>DRILLING</span><span>IN PROGRESS</span></div><div><span>SUBSURFACE</span><span>READING UNKNOWN</span></div><div><span>RESULT</span><span>DISCOVERY / DRY</span></div></div></div>
+      </article>
+      <article class="panel sx">
+        <div class="meta"><div class="n">03</div><div class="label">Status<b>In development</b></div></div>
+        <div class="body"><svg class="ico" viewBox="0 0 52 52" aria-hidden="true"><circle class="ln" cx="10" cy="26" r="7"/><path class="lm" d="M20 26h14"/><path class="lf" d="M32 21l7 5-7 5z"/><circle class="lf" cx="44" cy="26" r="5"/></svg><h3>TOKEN</h3><p>The token connects the NFT layer to the economic layer. It gives the results of participation a use beyond holding an NFT, and it is what the later layers of the protocol (Stake and Swap) operate on.</p><p>How the token is generated and rewarded will follow the finalized protocol rules. Supply, emission, amounts per drill, price, reward formulas and the contract address are still in development.</p><div class="chain"><span>NFT</span><i>&rarr;</i><span>DRILL</span><i>&rarr;</i><span>TOKEN</span></div></div>
+      </article>
+      <article class="panel sx">
+        <div class="meta"><div class="n">04</div><div class="label">Status<b>Concept defined / rules in development</b></div></div>
+        <div class="body"><svg class="ico" viewBox="0 0 52 52" aria-hidden="true"><rect class="ln" x="11" y="24" width="30" height="20"/><path class="lm" d="M17 24v-7a9 9 0 0 1 18 0v7"/><path class="lf" d="M24 32h4v6h-4z"/></svg><h3>STAKE</h3><p>STAKE is the token utility layer: <b>TOKEN &rarr; STAKE &rarr; ETH</b>. The intent is that the token can take part in the staking system, with ETH as the reward asset.</p><p>Staking follows the same Epoch structure, and rewards and settlement are tied to protocol Epochs. APR, ETH amounts, duration and formulas are still in development. Nothing here is a guaranteed return.</p><div class="chain"><span>TOKEN</span><i>&rarr;</i><span>STAKE</span><i>&rarr;</i><span>ETH</span></div></div>
+      </article>
+      <article class="panel sx">
+        <div class="meta"><div class="n">05</div><div class="label">Status<b>In development</b></div></div>
+        <div class="body"><svg class="ico" viewBox="0 0 52 52" aria-hidden="true"><path class="lm" d="M6 18h38"/><path class="lf" d="M40 12l8 6-8 6z"/><path class="lm" d="M46 34H8"/><path class="lf" d="M12 28l-8 6 8 6z"/></svg><h3>SWAP</h3><p>SWAP is the exchange interface for supported assets and tokens within the protocol. It is currently a concept only. Supported assets, fees and rates are still in development.</p></div>
+      </article>
+      <article class="panel sx">
+        <div class="meta"><div class="n">06</div><div class="label">Status<b>In development</b></div></div>
+        <div class="body"><svg class="ico" viewBox="0 0 52 52" aria-hidden="true"><rect class="ln" x="6" y="6" width="17" height="17"/><rect class="ln" x="29" y="6" width="17" height="17"/><rect class="ln" x="6" y="29" width="17" height="17"/><rect class="lf" x="29" y="29" width="17" height="17"/></svg><h3>MARKET</h3><p>MARKET is the marketplace layer for DRYHOLE NFTs. It is kept separate from Collection on purpose.</p><p><b>Collection</b> is for viewing and discovering NFTs. <b>Market</b> is for buying and selling them. Marketplace rules and fees are still in development.</p></div>
+      </article>
+
+    </section>
+      </div>
+    </div>
+    <div class="band cream"><div class="seam">RESULT</div>
+      <div class="in cyc2">
+        <div>
+          <div class="label">System</div>
+          <h2 class="big">THE COMPLETE<br>CYCLE</h2>
+          <div class="eqn">1 EPOCH = 1 DAY</div>
+          <div class="chain full"><span>NFT</span><i>&rarr;</i><span>DRILL</span><i>&rarr;</i><span>TOKEN</span><i>&rarr;</i><span>STAKE</span><i>&rarr;</i><span>ETH</span></div>
+          <p class="cap">DRYHOLE is designed as a repeating cycle rather than a one-time NFT interaction. The NFT is the entry point into the drilling layer, the token connects participation to the economic layer, staking gives the token additional utility, and Epochs keep the whole system synchronized.</p>
+        </div>
+        <div class="cyc">
+            <div class="nd"><em>STAGE 01</em><b>EPOCH</b><span>1 DAY</span></div><div class="ar"><i>&darr;</i></div>
+            <div class="nd"><em>STAGE 02</em><b>DRILL</b><span>NFT PARTICIPATES</span></div><div class="ar"><i>&darr;</i></div>
+            <div class="nd"><em>STAGE 03</em><b>TOKEN</b><span>DRILLING CREATES TOKEN UTILITY</span></div><div class="ar"><i>&darr;</i></div>
+            <div class="nd"><em>STAGE 04</em><b>STAKE</b><span>TOKEN PARTICIPATES IN STAKING</span></div><div class="ar"><i>&darr;</i></div>
+            <div class="nd"><em>STAGE 05</em><b>ETH</b><span>REWARD ASSET</span></div><div class="ar"><i>&darr;</i></div>
+            <div class="nd end"><em>STAGE 06</em><b>NEXT EPOCH</b><span>THE CYCLE CONTINUES</span></div>
+            <div class="lp">&#8634; RETURNS TO EPOCH</div>
+        </div>
+      </div>
+    </div>
+    <div class="band dark ctab"><div class="seam">NEXT EPOCH</div>
+      <svg class="tex" viewBox="0 0 800 200" preserveAspectRatio="none" aria-hidden="true"><path class="ln" d="M0 60q100-16 200 0t200 0 200 0 200 0"/><path class="ln" d="M0 110q100 14 200 0t200 0 200 0 200 0"/><path class="ln" d="M0 160q100-12 200 0t200 0 200 0 200 0"/><path class="lm" d="M400 0V200" stroke-dasharray="3 7"/></svg>
+      <div class="in">
+        <div class="label">Ready</div>
+        <h2 class="big">START THE CYCLE.</h2>
+        <p class="cap">The app is on its way. Follow us on X for launch updates.</p>
+        <div class="actions"><a class="cta pri" href="home">Open App</a><a class="cta" href="#docs">View Docs</a></div>
+      </div>
+    </div>
+    </div>
+    <div id="docsView" class="dv in" hidden>
+      <div class="dv-top"><a class="cta" href="#">&larr; Back to DRYHOLE</a><span class="label">Documentation</span></div>
+      <h1>DRYHOLE<span>DOCUMENTATION</span></h1>
+      <div class="stat"><span class="label">Status</span><span class="label" style="color:var(--lime)">Working draft</span></div>
+      <div class="dv-grid">
+        <nav class="toc" aria-label="Documentation contents"><a href="#ds-1" data-ds="ds-1"><i>01</i>Overview</a><a href="#ds-2" data-ds="ds-2"><i>02</i>Epoch system</a><a href="#ds-3" data-ds="ds-3"><i>03</i>NFT</a><a href="#ds-4" data-ds="ds-4"><i>04</i>Drill</a><a href="#ds-5" data-ds="ds-5"><i>05</i>Token</a><a href="#ds-6" data-ds="ds-6"><i>06</i>Stake</a><a href="#ds-7" data-ds="ds-7"><i>07</i>Swap</a><a href="#ds-8" data-ds="ds-8"><i>08</i>Market</a><a href="#ds-9" data-ds="ds-9"><i>09</i>Economy</a><a href="#ds-10" data-ds="ds-10"><i>10</i>Contracts</a></nav>
+        <div>
+      <section class="ds" id="ds-1"><h2><i>01</i>Overview</h2><p>DRYHOLE is an on-chain drilling protocol. Holders use DRYHOLE NFTs in a drilling system, drilling connects to a protocol token, and the token can take part in a staking system that uses ETH as the reward asset. Every part of the system follows a shared Epoch cycle.</p><p>The app will be organized into six areas: Home, Collection, Drill, Stake, Swap and Market. This document describes the intended role of each one. It is a working draft, and anything marked as in development is a concept only.</p></section>
+      <section class="ds" id="ds-2"><h2><i>02</i>Epoch system</h2><p>An Epoch is one complete protocol cycle and lasts one day. <b>1 Epoch = 1 day.</b> It is the synchronized time unit of DRYHOLE: drilling, token activity and staking are all placed in the Epoch they belong to.</p><p>At the end of an Epoch the current cycle is settled and the next one begins. The exact start time, time zone convention and settlement mechanism are still in development. No additional Epoch rules should be assumed.</p></section>
+      <section class="ds" id="ds-3"><h2><i>03</i>NFT</h2><p>The DRYHOLE NFT is the drilling asset and the entry point into the protocol. Holding an eligible NFT is what allows participation in Drill. The NFT represents the ability to drill. It does not represent a promised result or reward.</p><p>The full set of DRYHOLE NFTs is viewed in Collection. Eligibility criteria, total supply and mint details are still in development.</p></section>
+      <section class="ds" id="ds-4"><h2><i>04</i>Drill</h2><p>Drill is the system in which an NFT takes part in drilling during an active Epoch. Conceptually the drill starts at the surface, moves into the subsurface, and produces a reading that is unknown until the process completes.</p><p>A drill ends in one of two outcomes: a discovery or a dry result. Both are valid protocol outcomes. How results are determined, how they relate to token generation, and any rates or depths are still in development.</p></section>
+      <section class="ds" id="ds-5"><h2><i>05</i>Token</h2><p>The DRYHOLE token is the economic utility layer. Drilling connects the NFT layer to the token layer, so that participation has a use beyond holding an NFT. The token is the asset used by Stake and Swap.</p><p>How the token is generated is defined by the final protocol rules. Total supply, emission, amount per drill, price and the contract address are still in development.</p></section>
+      <section class="ds" id="ds-6"><h2><i>06</i>Stake</h2><p>Stake is the token utility layer. The intended design is <b>TOKEN &rarr; STAKE &rarr; ETH</b>: the token takes part in the staking system and ETH is the reward asset.</p><p>Staking follows the Epoch cycle, and rewards and settlement are associated with Epochs. APR, ETH amounts, lock duration and reward formulas are still in development. No return is guaranteed.</p></section>
+      <section class="ds" id="ds-7"><h2><i>07</i>Swap</h2><p>Swap is the exchange interface for supported assets and tokens inside the protocol, including the DRYHOLE token. It is currently a concept only and is not connected to any on-chain functionality.</p><p>Supported assets, pairs, fees and rates are still in development.</p></section>
+      <section class="ds" id="ds-8"><h2><i>08</i>Market</h2><p>Market is the marketplace layer for DRYHOLE NFTs, where they can be bought and sold. It is separate from Collection. <b>Collection</b> is for viewing and discovering NFTs, and <b>Market</b> is for buying and selling them.</p><p>Listing rules, pricing and fees are still in development.</p></section>
+      <section class="ds" id="ds-9"><h2><i>09</i>Economy</h2><p>The DRYHOLE economy is the way the layers connect: <b>NFT &rarr; DRILL &rarr; TOKEN &rarr; STAKE &rarr; ETH</b>, repeated every Epoch. The NFT is the entry point, the token is the utility layer, and ETH is the intended reward asset for staking.</p><p>Tokenomics, reward sources, emission and any economic parameters are still in development and are not described here. Participation involves risk. Nothing in this document is financial advice or a promise of return.</p></section>
+      <section class="ds" id="ds-10"><h2><i>10</i>Contracts</h2><p>Contract addresses will be published here once they exist. Until then, addresses are shown as a dash (&mdash;).</p>
+        <div class="kv"><div><span>Token</span><span>&mdash;</span></div><div><span>NFT collection</span><span>&mdash;</span></div><div><span>Staking</span><span>&mdash;</span></div><div><span>Swap</span><span>&mdash;</span></div><div><span>Market</span><span>&mdash;</span></div></div></section>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div class="soon-m" id="soonM" hidden role="dialog" aria-modal="true" aria-labelledby="soonT">
+    <div class="soon-b">
+      <div class="label">App status</div>
+      <h3 id="soonT">COMING SOON</h3>
+      <p>The DRYHOLE app is still under development. Follow us on X to get updates as soon as it goes live.</p>
+      <div class="actions"><a class="cta pri" href="https://x.com/dryholedrill" target="_blank" rel="noopener">Follow on X</a><button class="cta" type="button" id="soonX">Close</button></div>
+    </div>
+  </div>
+
+</div>
+<script>
+(function(){
+  /* Internal routing: #docs shows the documentation view, anything else shows the landing page. */
+  var land=document.getElementById('landing'),dv=document.getElementById('docsView');
+  function route(){
+    var d=location.hash==='#docs';
+    land.hidden=d;dv.hidden=!d;
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  window.addEventListener('hashchange',route);route();
+  document.querySelectorAll('.toc a').forEach(function(a){
+    a.addEventListener('click',function(e){e.preventDefault();document.getElementById(a.getAttribute('data-ds')).scrollIntoView({behavior:'smooth',block:'start'})});
+  });
+
+  /* Open App -> Coming Soon popup */
+  var sm=document.getElementById('soonM');
+  function soon(o){sm.hidden=!o}
+  document.querySelectorAll('[data-soon]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();soon(true)})});
+  document.getElementById('soonX').addEventListener('click',function(){soon(false)});
+  sm.addEventListener('click',function(e){if(e.target===sm)soon(false)});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')soon(false)});
+
+  /* Header X link: set data-href on #xLink to the real profile URL. */
+  var xl=document.getElementById('xLink');
+  xl.addEventListener('click',function(e){e.preventDefault();var u=xl.getAttribute('data-href');if(u)window.open(u,'_blank','noopener')});
+})();
+</script>
+</body>
+</html>
