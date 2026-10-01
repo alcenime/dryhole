@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DRYHOLE - Drilling Terminal</title>
+<style>
+:root{
+  --bg:#0D1110; --panel:#121815; --panel2:#1B211D; --line:#293128;
+  --lime:#B8FF00; --text:#E8ECE5; --mute:#7B847C;
+  --sans:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --side:264px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body{min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:1px solid var(--lime);outline-offset:2px}
+.mono{font-family:var(--mono)}
+.label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mute);text-transform:uppercase}
+
+/* Sidebar */
+.side{position:fixed;inset:0 auto 0 0;width:var(--side);background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:28px 18px 20px;z-index:30;transition:transform .25s ease}
+.brand{padding:0 8px 22px;border-bottom:1px solid var(--line)}
+.brand b{display:block;font-size:22px;font-weight:700;letter-spacing:.22em}
+.brand span{display:block;margin-top:6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.3em;color:var(--mute)}
+.ws{padding:24px 8px 10px}
+nav{display:flex;flex-direction:column;gap:4px}
+.nav{display:flex;align-items:center;gap:14px;padding:11px 12px;border:1px solid transparent;border-radius:3px;color:var(--mute);font-size:14px;letter-spacing:.02em;transition:color .15s,background .15s,border-color .15s}
+.nav .ic{width:18px;text-align:center;font-size:15px;font-family:var(--mono)}
+.nav .dot{margin-left:auto;width:6px;height:6px;border-radius:50%;background:transparent}
+.nav:hover{color:var(--text);background:var(--panel2)}
+.nav.active{color:var(--lime);background:#152016;border-color:rgba(184,255,0,.45);box-shadow:0 0 18px rgba(184,255,0,.08),inset 0 0 12px rgba(184,255,0,.04)}
+.nav.active .dot{background:var(--lime);box-shadow:0 0 8px var(--lime)}
+.note{margin-top:auto;border:1px solid var(--line);border-radius:3px;padding:16px;background:var(--bg)}
+.note p{margin-top:12px;font-size:15px;line-height:1.45;color:var(--text)}
+.note p i{display:block;color:var(--mute);font-style:normal}
+.note .tick{margin-top:14px;height:1px;background:var(--line);position:relative}
+.note .tick:after{content:"";position:absolute;left:0;top:-1px;width:28px;height:3px;background:var(--lime)}
+
+/* Top bar (mobile) */
+.top{display:none}
+.scrim{display:none}
+
+/* Main */
+main{margin-left:var(--side);padding:32px 48px 64px;max-width:1240px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:3px}
+.ph{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line)}
+.live{display:inline-flex;align-items:center;gap:8px;color:var(--lime)}
+.live:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime)}
+.sec{margin-top:56px}
+
+/* Content header (all pages) + Home tabs */
+.mh{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.mh-title{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.24em;text-transform:uppercase}
+.wallet{display:block;width:100%;margin-top:12px;text-align:center;padding:13px 18px;border:1px solid rgba(184,255,0,.45);border-radius:3px;background:#152016;color:var(--lime);font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;transition:background .15s,color .15s}
+.wallet:hover{background:var(--lime);color:var(--bg)}
+.tabs{display:flex;gap:32px;border-bottom:1px solid var(--line)}
+.tab{padding:13px 0;margin-bottom:-1px;border-bottom:2px solid transparent;color:var(--mute);font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;transition:color .15s,border-color .15s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--lime);border-bottom-color:var(--lime)}
+.pages{margin-top:44px}
+
+/* Buttons */
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
+.cta{padding:14px 22px;border:1px solid var(--line);border-radius:3px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;color:var(--text);text-transform:uppercase;transition:border-color .15s,color .15s,background .15s}
+.cta:hover{border-color:var(--lime);color:var(--lime)}
+.cta.pri{background:var(--lime);border-color:var(--lime);color:var(--bg);font-weight:600}
+.cta.pri:hover{background:transparent;color:var(--lime)}
+
+/* Hero */
+.hero{position:relative;padding:56px 44px 52px;overflow:hidden;
+  background:
+   linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 42px,
+   linear-gradient(90deg,rgba(41,49,40,.55) 1px,transparent 1px) 0 0/42px 100%,
+   var(--panel)}
+.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--panel) 30%,rgba(18,24,21,.55))}
+.hero>*{position:relative}
+.hero h1{margin-top:18px;font-size:clamp(38px,5.6vw,72px);line-height:1.02;font-weight:600;letter-spacing:-.02em}
+.hero h1 span{display:block;color:var(--mute)}
+.hero p{margin-top:24px;max-width:520px;font-size:15px;line-height:1.65;color:var(--mute)}
+.hero .coord{position:absolute;right:18px;top:16px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--mute)}
+
+/* Section headings */
+.sh{margin-bottom:20px}
+.sh h2{margin-top:10px;font-size:22px;font-weight:600;letter-spacing:-.01em}
+.sh p{margin-top:8px;max-width:560px;font-size:14px;line-height:1.6;color:var(--mute)}
+
+/* Loop */
+.loop{display:grid;grid-template-columns:repeat(4,1fr)}
+.step{padding:22px 20px 26px;border-right:1px solid var(--line);position:relative}
+.step:last-child{border-right:0}
+.step .n{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--lime)}
+.step h3{margin-top:18px;font-family:var(--mono);font-size:18px;font-weight:600;letter-spacing:.14em}
+.step p{margin-top:10px;font-size:14px;line-height:1.55;color:var(--mute)}
+.step:not(:last-child):after{content:"\2192";position:absolute;right:-8px;top:20px;width:16px;text-align:center;background:var(--panel);font-family:var(--mono);font-size:12px;color:var(--mute);z-index:1}
+
+/* Schematic (reuses rig / shaft / bit / strata / depth) */
+.schem{display:grid;grid-template-columns:minmax(0,1fr) 300px}
+.stage{position:relative;height:440px;border-right:1px solid var(--line);overflow:hidden;
+  background:
+   linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 42px,
+   linear-gradient(90deg,rgba(41,49,40,.55) 1px,transparent 1px) 0 0/42px 100%,
+   var(--bg)}
+.stage:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(13,17,16,.85))}
+.ground{position:absolute;left:0;right:0;top:118px;height:1px;background:var(--mute);opacity:.7}
+.rig{position:absolute;left:50%;top:22px;width:120px;height:96px;transform:translateX(-50%)}
+.rig .mast{position:absolute;left:50%;top:0;width:44px;height:96px;transform:translateX(-50%);border:1px solid var(--mute);border-bottom:0;
+  background:repeating-linear-gradient(135deg,transparent 0 10px,rgba(123,132,124,.55) 10px 11px)}
+.rig .top{position:absolute;left:50%;top:-6px;width:64px;height:8px;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--mute);display:block}
+.rig .base{position:absolute;left:0;right:0;bottom:0;height:8px;background:var(--panel2);border:1px solid var(--mute)}
+.shaft{position:absolute;left:50%;top:118px;width:10px;height:216px;transform:translateX(-50%);background:linear-gradient(90deg,#151c17,#2b352d 45%,#151c17);border:1px solid var(--mute);border-top:0}
+.shaft:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0 14px,rgba(13,17,16,.9) 14px 16px)}
+.bit{position:absolute;left:50%;top:334px;width:0;height:0;transform:translateX(-50%);border-left:14px solid transparent;border-right:14px solid transparent;border-top:32px solid var(--lime);filter:drop-shadow(0 0 8px rgba(184,255,0,.45));animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{filter:drop-shadow(0 0 2px rgba(184,255,0,.2))}}
+.strata{position:absolute;left:0;right:0;top:118px;bottom:0}
+.strata i{position:absolute;left:0;right:0;height:1px;background:var(--line)}
+.strata i.sub{background:none;border-top:1px dashed var(--mute);opacity:.8}
+.depth{position:absolute;left:16px;top:118px;bottom:0;width:60px}
+.depth span{position:absolute;left:0;font-family:var(--mono);font-size:10px;color:var(--mute);display:flex;align-items:center;gap:6px}
+.depth span:after{content:"";width:10px;height:1px;background:var(--mute)}
+.tag{position:absolute;right:18px;top:16px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--mute)}
+.tag.l{left:18px;right:auto}
+.cal{position:absolute;left:calc(50% + 26px);display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--text);z-index:1}
+.cal:before{content:"";width:28px;height:1px;background:var(--mute)}
+.cal.mute{color:var(--mute)}
+.cal.hot{color:var(--lime)}
+.cal.hot:before{background:var(--lime)}
+.schem-info{padding:22px 20px}
+.schem-info h3{margin-top:10px;font-size:15px;font-weight:600;letter-spacing:.14em}
+.row{display:flex;justify-content:space-between;align-items:baseline;padding:14px 0;border-top:1px solid var(--line)}
+.row .mono{font-size:14px}
+.schem-info .row:first-of-type{margin-top:18px}
+.scan{margin-top:20px;height:2px;background:var(--line);position:relative;overflow:hidden}
+.scan:after{content:"";position:absolute;top:0;left:0;height:100%;width:36%;background:var(--lime);animation:scan 2.8s linear infinite}
+@keyframes scan{from{transform:translateX(-100%)}to{transform:translateX(280%)}}
+
+/* Network modules */
+.net{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.mod{padding:20px 20px 24px}
+.mod .label{color:var(--lime)}
+.mod h3{margin-top:14px;font-family:var(--mono);font-size:15px;font-weight:600;letter-spacing:.16em}
+.mod p{margin-top:8px;font-size:14px;line-height:1.55;color:var(--mute)}
+
+/* Mint (Home tab) */
+.mint-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.stat{padding:18px 20px 22px;position:relative}
+.stat:before{content:"";position:absolute;left:0;top:0;width:28px;height:2px;background:var(--lime)}
+.stat .val{margin-top:16px;font-family:var(--mono);font-size:clamp(26px,3.4vw,38px);font-weight:600;letter-spacing:.02em;line-height:1.1}
+.stat .val small{font-size:.55em;font-weight:400;color:var(--mute);letter-spacing:.06em}
+.mint-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px;align-items:start}
+.mint-panel .body{padding:22px 20px 24px}
+.mint-panel h2{margin-top:10px;font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:.14em}
+.mint-panel .desc{margin-top:8px;font-size:14px;line-height:1.6;color:var(--mute)}
+.mint-info{margin-top:20px}
+.mint-info .row .mono{font-size:14px}
+.mint-info .row .mono.hot{color:var(--lime)}
+.qty{margin-top:22px}
+.qty-ctl{margin-top:10px;display:grid;grid-template-columns:52px 1fr 52px;border:1px solid var(--line);border-radius:3px;background:var(--bg)}
+.qty-ctl button{height:52px;font-family:var(--mono);font-size:20px;color:var(--text);transition:color .15s,background .15s}
+.qty-ctl button:hover{color:var(--lime);background:var(--panel2)}
+.qty-ctl output{display:flex;align-items:center;justify-content:center;border-left:1px solid var(--line);border-right:1px solid var(--line);font-family:var(--mono);font-size:22px;font-weight:600}
+.mint-btn{display:block;width:100%;margin-top:16px;padding:18px 22px;font-size:13px;text-align:center}
+.mint-note{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;line-height:1.7;letter-spacing:.04em;color:var(--mute)}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+.tbl th{padding:12px 18px;text-align:left;font-size:11px;font-weight:400;letter-spacing:.14em;color:var(--mute);text-transform:uppercase;border-bottom:1px solid var(--line)}
+.tbl td{padding:11px 18px;border-bottom:1px solid var(--line);color:var(--text)}
+.tbl tbody tr:last-child td{border-bottom:0}
+.tbl td.mute{color:var(--mute)}
+.tbl tr.cur td{background:#152016;color:var(--lime)}
+.tbl tr.cur td:first-child{box-shadow:inset 2px 0 0 var(--lime)}
+.st{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:2px;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+tr.cur .st{border-color:rgba(184,255,0,.6);color:var(--lime)}
+.st.team{color:var(--text)}
+.ph .more{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mute);text-transform:uppercase;transition:color .15s}
+.ph .more:hover{color:var(--lime)}
+.mint-recent{margin-top:16px}
+@media (max-width:980px){
+  .mint-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:560px){
+  .mint-stats{grid-template-columns:minmax(0,1fr);gap:12px}
+  .stat{padding:16px 16px 18px}
+  .stat .val{margin-top:12px}
+  .mint-panel .body{padding:20px 16px 22px}
+  .tbl th,.tbl td{padding:10px 14px}
+}
+
+/* White paper */
+.wp{display:grid;grid-template-columns:minmax(0,1fr);gap:56px;align-items:start}
+.toc{position:sticky;top:24px;display:flex;flex-direction:column;border-left:1px solid var(--line)}
+.toc a{padding:8px 14px;margin-left:-1px;border-left:1px solid transparent;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--mute);text-transform:uppercase;transition:color .15s,border-color .15s}
+.toc a:hover{color:var(--lime);border-left-color:var(--lime)}
+.wp-title{font-size:clamp(34px,4.6vw,58px);line-height:1.02;font-weight:600;letter-spacing:-.02em}
+.wp-title span{display:block;color:var(--mute)}
+.wp-meta{margin-top:18px;padding:12px 16px;border:1px solid var(--line);border-left:2px solid var(--lime);border-radius:3px;max-width:640px;font-size:13.5px;line-height:1.6;color:var(--mute)}
+.doc{max-width:680px}
+.doc section{padding-top:44px;margin-top:44px;border-top:1px solid var(--line)}
+.doc section:first-of-type{margin-top:36px}
+.doc h2{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+.doc h2 i{font-style:normal;color:var(--lime);margin-right:10px}
+.doc p{margin-top:16px;font-size:15px;line-height:1.75;color:#B9C1B8}
+.doc p b{color:var(--text);font-weight:600}
+.doc ul{margin-top:16px;padding-left:0;list-style:none}
+.doc li{padding:10px 0 10px 18px;position:relative;border-top:1px solid var(--line);font-size:14.5px;line-height:1.6;color:#B9C1B8}
+.doc li:last-child{border-bottom:1px solid var(--line)}
+.doc li:before{content:"";position:absolute;left:0;top:19px;width:6px;height:1px;background:var(--lime)}
+
+/* Collection + placeholder pages */
+.pg-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:28px}
+.pg-head h1{margin-top:12px;font-size:clamp(30px,4vw,48px);line-height:1.04;font-weight:600;letter-spacing:-.02em}
+.pg-head p{max-width:360px;font-size:14px;line-height:1.6;color:var(--mute)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.nft{overflow:hidden}
+.nft .art{position:relative;aspect-ratio:1;border-bottom:1px solid var(--line);
+  background:
+   linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 25%,
+   linear-gradient(90deg,rgba(41,49,40,.55) 1px,transparent 1px) 0 0/25% 100%,
+   var(--bg)}
+.nft .art:after{content:"?";position:absolute;inset:0;display:grid;place-content:center;font-family:var(--mono);font-size:28px;color:var(--mute)}
+.nft .meta{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-family:var(--mono);font-size:12px}
+.nft .meta span:last-child{color:var(--mute);font-size:11px;letter-spacing:.1em}
+.ph-panel{padding:0}
+.ph-body{padding:44px 24px;display:grid;gap:14px;max-width:520px}
+.ph-body .bar{height:10px;border:1px solid var(--line);background:var(--bg)}
+.ph-body .bar:nth-child(2){width:72%}
+.ph-body .bar:nth-child(3){width:48%}
+.ph-note{padding:14px 24px;border-top:1px solid var(--line)}
+.foot{margin-top:56px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.1em}
+
+/* Responsive */
+@media (max-width:1100px){
+  .loop{grid-template-columns:repeat(2,1fr)}
+  .step:nth-child(2){border-right:0}
+  .step:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .step:after{display:none}
+  .schem{grid-template-columns:1fr}
+  .stage{border-right:0;border-bottom:1px solid var(--line)}
+  .net{grid-template-columns:repeat(2,1fr)}
+  .grid{grid-template-columns:repeat(3,1fr)}
+  .wp{grid-template-columns:1fr;gap:32px}
+  .toc{position:static;flex-direction:row;flex-wrap:wrap;border-left:0;gap:4px 16px}
+  .toc a{padding:4px 0;border-left:0}
+  .toc a:hover{border-left:0}
+}
+@media (max-width:860px){
+  .side{transform:translateX(-100%);width:min(300px,86vw);box-shadow:none}
+  body.open .side{transform:none;box-shadow:24px 0 60px rgba(0,0,0,.6)}
+  .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s;z-index:20}
+  body.open .scrim{opacity:1;pointer-events:auto}
+  .top{display:flex;position:sticky;top:0;z-index:10;align-items:center;gap:14px;padding:12px 16px;background:rgba(13,17,16,.94);border-bottom:1px solid var(--line)}
+  .burger{width:40px;height:40px;border:1px solid var(--line);border-radius:3px;display:grid;place-content:center;gap:5px}
+  .burger i{display:block;width:18px;height:1px;background:var(--text)}
+  .top b{font-size:15px;letter-spacing:.22em}
+  .top span{margin-left:auto}
+  main{margin-left:0;padding:24px 18px 48px}
+  .hero{padding:44px 22px 40px}
+}
+@media (max-width:560px){
+  .loop{grid-template-columns:1fr}
+  .step{border-right:0;border-bottom:1px solid var(--line)}
+  .step:last-child{border-bottom:0}
+  .net{grid-template-columns:1fr}
+  .grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .stage{height:400px}
+  .tabs{gap:24px}
+  .cta{flex:1;text-align:center}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <button class="burger" id="open" aria-label="Open menu" aria-controls="side"><i></i><i></i><i></i></button>
+  <b>DRYHOLE</b>
+  <span class="label live">Epoch 042</span>
+</header>
+<div class="scrim" id="scrim"></div>
+
+<aside class="side" id="side">
+  <div class="brand"><b>DRYHOLE</b></div>
+  <div class="ws label">Workspace</div>
+  <nav id="nav">
+    <a class="nav active" href="#" data-page="home" aria-current="page"><span class="ic">&#9638;</span>Home<i class="dot"></i></a>
+    <a class="nav" href="collection.html" data-page="collection"><span class="ic">&#9672;</span>Collection<i class="dot"></i></a>
+    <a class="nav" href="drill.html" data-page="drill"><span class="ic">&#9935;&#xFE0E;</span>Drill<i class="dot"></i></a>
+    <a class="nav" href="stake.html" data-page="stake"><span class="ic">&#9678;</span>Stake<i class="dot"></i></a>
+    <a class="nav" href="swap.html" data-page="swap"><span class="ic">&#8644;</span>Swap<i class="dot"></i></a>
+    <a class="nav" href="market.html" data-page="market"><span class="ic">&#9637;</span>Market<i class="dot"></i></a>
+  </nav>
+  <div class="note">
+    <div class="label">The Dryhole Network</div>
+    <p>Find something.<i>Or find nothing.</i></p>
+    <div class="tick"></div>
+  </div>
+  <button class="wallet" type="button">Connect Wallet</button>
+</aside>
+
+<main>
+  <!-- Content topbar: page title -->
+  <header class="mh" id="pageHead" hidden>
+    <div class="mh-title" id="pageTitle">Home</div>
+  </header>
+
+  <!-- Home-only tabs (NOT sidebar items) -->
+  <div class="tabs" id="homeTabs" role="tablist" aria-label="Home sections">
+    <button class="tab active" role="tab" id="tab-overview" data-tab="overview" aria-selected="true" aria-controls="tp-overview">Overview</button>
+    <button class="tab" role="tab" id="tab-mint" data-tab="mint" aria-selected="false" aria-controls="tp-mint" tabindex="-1">Mint</button>
+    <button class="tab" role="tab" id="tab-paper" data-tab="paper" aria-selected="false" aria-controls="tp-paper" tabindex="-1">White Paper</button>
+  </div>
+
+  <div class="pages">
+
+  <!-- ============ HOME ============ -->
+  <div class="page" id="page-home" data-page="home">
+
+    <!-- Overview -->
+    <div id="tp-overview" role="tabpanel" aria-labelledby="tab-overview">
+      <section class="panel hero">
+        <span class="coord">SECTOR 04 / GRID 17</span>
+        <div class="label">DRYHOLE Protocol</div>
+        <h1>Find something.<span>Or find nothing.</span></h1>
+        <p>DRYHOLE is an on-chain drilling system where every epoch opens a new opportunity to discover what lies beneath.</p>
+        <div class="cta-row">
+          <button class="cta pri" type="button" data-go="drill">Start Drilling</button>
+          <button class="cta" type="button" data-go="collection">Explore Collection</button>
+        </div>
+      </section>
+
+      <section class="sec">
+        <div class="sh"><div class="label">The Core Concept</div><h2>One loop. Four steps.</h2></div>
+        <div class="panel loop">
+          <div class="step"><div class="n">01</div><h3>EPOCH</h3><p>A new drilling cycle begins.</p></div>
+          <div class="step"><div class="n">02</div><h3>DRILL</h3><p>Enter the drilling system and perform a drill.</p></div>
+          <div class="step"><div class="n">03</div><h3>RESULT</h3><p>The drill produces a result.</p></div>
+          <div class="step"><div class="n">04</div><h3>NFT</h3><p>The result becomes part of the DRYHOLE collection.</p></div>
+        </div>
+      </section>
+
+      <section class="sec">
+        <div class="sh"><div class="label">Cross section</div><h2>What is below the surface</h2></div>
+        <div class="panel schem">
+          <div class="stage" aria-hidden="true">
+            <span class="tag l">SECTION A-A / SCALE 1:200</span>
+            <span class="tag">REC</span>
+            <div class="rig"><span class="top"></span><div class="mast"></div><div class="base"></div></div>
+            <div class="ground"></div>
+            <div class="shaft"></div>
+            <div class="bit"></div>
+            <div class="strata"><i class="sub" style="top:96px"></i><i style="top:60px"></i><i style="top:200px"></i><i style="top:270px"></i></div>
+            <div class="depth"><span style="top:52px">200</span><span style="top:122px">400</span><span style="top:192px">600</span><span style="top:262px">800</span></div>
+            <span class="cal mute" style="top:110px">SURFACE</span>
+            <span class="cal" style="top:186px">DRILL</span>
+            <span class="cal mute" style="top:206px">SUBSURFACE</span>
+            <span class="cal" style="top:326px">?</span>
+            <span class="cal hot" style="top:400px">DISCOVERY</span>
+          </div>
+          <div class="schem-info">
+            <div class="label live">Schematic</div>
+            <h3>DRILL PROFILE</h3>
+            <div class="row"><span class="label">Origin</span><span class="mono">0 M</span></div>
+            <div class="row"><span class="label">Bit</span><span class="mono">ACTIVE</span></div>
+            <div class="row"><span class="label">Reading</span><span class="mono" style="color:var(--mute)">UNKNOWN</span></div>
+            <div class="row"><span class="label">Outcome</span><span class="mono" style="color:var(--mute)">PENDING</span></div>
+            <div class="scan"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sec">
+        <div class="sh"><div class="label">The Dryhole Network</div><h2>Five modules, one system</h2></div>
+        <div class="net">
+          <div class="panel mod"><div class="label">Module</div><h3>DRILL</h3><p>Use DRYHOLE NFTs for the drilling system and rewards.</p></div>
+          <div class="panel mod"><div class="label">Module</div><h3>STAKE</h3><p>Lock DRYHOLE NFTs to participate in the staking system.</p></div>
+          <div class="panel mod"><div class="label">Module</div><h3>SWAP</h3><p>Swap supported assets and tokens.</p></div>
+          <div class="panel mod"><div class="label">Module</div><h3>MARKET</h3><p>NFT marketplace for DRYHOLE assets.</p></div>
+          <div class="panel mod"><div class="label">Module</div><h3>COLLECTION</h3><p>Explore the global DRYHOLE NFT collection.</p></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Mint -->
+    <div id="tp-mint" role="tabpanel" aria-labelledby="tab-mint" hidden>
+      <div class="mint-stats">
+        <div class="panel stat"><div class="label">Total Minted</div><div class="val" data-mint="totalMinted">—</div></div>
+        <div class="panel stat"><div class="label">Current Phase</div><div class="val" data-mint="currentPhase">—</div></div>
+        <div class="panel stat"><div class="label">Current Epoch</div><div class="val" data-mint="currentEpoch">—</div></div>
+      </div>
+
+      <div class="mint-grid">
+        <section class="panel mint-panel" aria-labelledby="mintTitle">
+          <div class="ph"><span class="label">Genesis mint</span><span class="label" data-mint="phaseBadge">—</span></div>
+          <div class="body">
+            <h2 id="mintTitle">DRYHOLE GENESIS</h2>
+            <p class="desc">Mint your DRYHOLE NFT and join the drilling system.</p>
+
+            <div class="mint-info">
+              <div class="row"><span class="label">Mint price</span><span class="mono" data-mint="mintPrice">—</span></div>
+              <div class="row"><span class="label">Max mint</span><span class="mono" data-mint="maxMint">—</span></div>
+              <div class="row"><span class="label">Phase supply</span><span class="mono" data-mint="phaseSupply">—</span></div>
+            </div>
+
+            <div class="qty">
+              <div class="label" id="qtyLabel">Quantity</div>
+              <div class="qty-ctl" role="group" aria-labelledby="qtyLabel">
+                <button type="button" id="qtyMinus" aria-label="Decrease quantity">&minus;</button>
+                <output id="qtyVal" aria-live="polite">1</output>
+                <button type="button" id="qtyPlus" aria-label="Increase quantity">+</button>
+              </div>
+            </div>
+
+            <button class="cta pri mint-btn" type="button">Mint NFT</button>
+            <p class="mint-note">UI preview only. Minting is not connected.</p>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="phasesTitle">
+          <div class="ph"><span class="label" id="phasesTitle">Mint phases</span><span class="label">Phase 0 + 10</span></div>
+          <div class="tbl-wrap">
+            <table class="tbl">
+              <thead><tr><th scope="col">Phase</th><th scope="col">Supply</th><th scope="col">Price</th></tr></thead>
+              <tbody>
+<tr data-phase="0"><td>Phase 0</td><td data-mint="supply">—</td><td data-mint="price">—</td></tr>
+<tr data-phase="1"><td>Phase 1</td><td data-mint="supply">—</td><td data-mint="price">—</td></tr>
+<tr data-phase="2"><td>Phase 2</td><td data-mint="supply">—</td><td data-mint="price">—</td></tr>
+<tr data-phase="3"><td>Phase 3</td><td data-mint="supply">—</td><td data-mint="price">—</td></tr>
+<tr data-phase="4"><td>Phase 4</td><td data-mint="supply">—</td><td data-mint="price">—</td></tr>
+<tr data-phase="5"><td>Phase 5</td><td data-mint="supply">—</td><td data-mint="price">—</td></tr>
+<tr data-phase="6"><td>Phase 6</td><td data-mint="supply">—</td><td data-mint="price">—</td></tr>
+<tr data-phase="7"><td>Phase 7</td><td data-mint="supply">—</td><td data-mint="price">—</td></tr>
+<tr data-phase="8"><td>Phase 8</td><td data-mint="supply">—</td><td data-mint="price">—</td></tr>
+<tr data-phase="9"><td>Phase 9</td><td data-mint="supply">—</td><td data-mint="price">—</td></tr>
+<tr data-phase="10"><td>Phase 10</td><td data-mint="supply">—</td><td data-mint="price">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel mint-recent" aria-labelledby="recentTitle">
+        <div class="ph"><span class="label" id="recentTitle">Recent mints</span><a class="more" href="#" data-noop>View all &rarr;</a></div>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th scope="col">Wallet</th><th scope="col">Amount</th><th scope="col">Phase</th><th scope="col">Price</th><th scope="col">Time</th></tr></thead>
+            <tbody id="recentMintBody">
+              <tr class="empty"><td colspan="5" class="mute" style="text-align:center;padding:26px 18px;letter-spacing:.14em">NO MINT DATA</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- White Paper -->
+    <div id="tp-paper" role="tabpanel" aria-labelledby="tab-paper" hidden>
+      <div class="wp">
+        <article>
+          <h1 class="wp-title">DRYHOLE<span>WHITE PAPER</span></h1>
+          <p class="wp-meta">Status: working draft. Mechanics that are not finalized are described as concepts, not as fixed rules. No supply figures, reward formulas or contract addresses are stated here.</p>
+          <div class="doc">
+            <section id="wp-1">
+              <h2><i>01</i>What is DRYHOLE</h2>
+              <p>DRYHOLE is an on-chain drilling protocol built around NFTs, Epochs and token utility.</p>
+              <p>The protocol is organized around a simple cycle: <b>EPOCH</b> &rarr; <b>DRILL</b> &rarr; <b>TOKEN</b> &rarr; <b>STAKE</b> &rarr; <b>ETH</b>. Every part of the system operates within the same recurring Epoch structure. <b>1 day = 1 Epoch.</b></p>
+              <p>The idea behind DRYHOLE is simple: drilling starts with an unknown outcome. The system provides the structure around that activity, while each Epoch creates a new cycle for participation.</p>
+            </section>
+            <section id="wp-2">
+              <h2><i>02</i>Epoch System</h2>
+              <p>Time in DRYHOLE is divided into Epochs. One Epoch represents one day.</p>
+              <p>Epochs provide the shared rhythm for the protocol. Rather than treating each module as an isolated system, DRYHOLE uses the same Epoch cycle across its core activities. An Epoch begins, the protocol operates through its cycle, and when the Epoch ends, the current cycle settles before the next Epoch begins.</p>
+              <p>This creates a consistent reference point for:</p>
+              <ul>
+                <li>Drilling activity</li>
+                <li>Token activity</li>
+                <li>Staking activity</li>
+                <li>Protocol settlement</li>
+                <li>Historical records</li>
+              </ul>
+              <p>The Epoch system is intended to make activity easier to understand and reference across the protocol.</p>
+            </section>
+            <section id="wp-3">
+              <h2><i>03</i>NFT</h2>
+              <p>NFTs are the drilling assets of DRYHOLE.</p>
+              <p>An NFT is not simply a collectible displayed in the Collection. It is intended to have a role within the protocol's drilling system. The NFT participates in DRILL, connecting the collectible layer with the protocol's utility layer.</p>
+              <p>The relationship can be represented as: <b>NFT</b> &rarr; <b>DRILL</b> &rarr; <b>TOKEN</b>.</p>
+              <p>The exact NFT mechanics, requirements and parameters will be defined as the system is finalized.</p>
+            </section>
+            <section id="wp-4">
+              <h2><i>04</i>Drill</h2>
+              <p>DRILL is the core action of DRYHOLE. The drilling system uses NFTs as its primary drilling assets.</p>
+              <p>A drill takes place within the protocol's Epoch structure. The purpose of the drill is to participate in the system and produce token utility through the drilling process. The core relationship is: <b>NFT</b> &rarr; <b>DRILL</b> &rarr; <b>TOKEN</b>.</p>
+              <p>DRYHOLE uses the idea of drilling into the unknown as part of its protocol identity. The Cross Section represents this visually: the surface is known, while what lies beneath remains unknown until the system drills into it.</p>
+              <p>Specific drilling rates, limits, rewards and other parameters are not finalized in this draft.</p>
+            </section>
+            <section id="wp-5">
+              <h2><i>05</i>Token</h2>
+              <p>The DRYHOLE token represents the utility layer of the protocol. It is connected directly to the drilling system.</p>
+              <p>Rather than treating the token as a separate asset with no relationship to the protocol, DRYHOLE is designed around the relationship: <b>NFT</b> &rarr; <b>DRILL</b> &rarr; <b>TOKEN</b>. The token then continues into the staking system: <b>TOKEN</b> &rarr; <b>STAKE</b> &rarr; <b>ETH</b>.</p>
+              <p>This gives the token a role beyond simply existing as a tradable asset.</p>
+              <p>Token supply, emission, distribution and other economic parameters are not finalized.</p>
+            </section>
+            <section id="wp-6">
+              <h2><i>06</i>Stake</h2>
+              <p>STAKE provides utility for the DRYHOLE token. The basic relationship is: <b>TOKEN</b> &rarr; <b>STAKE</b> &rarr; <b>ETH</b>.</p>
+              <p>Users participate in the staking system using the DRYHOLE token, with ETH serving as the reward asset. The purpose of this system is to give the token a role within the broader DRYHOLE economy.</p>
+              <p>The exact staking parameters are not finalized. This includes:</p>
+              <ul>
+                <li>Reward rate</li>
+                <li>ETH distribution</li>
+                <li>Staking duration</li>
+                <li>Limits</li>
+                <li>Settlement details</li>
+                <li>Other economic parameters</li>
+              </ul>
+              <p>These will be documented when finalized.</p>
+            </section>
+            <section id="wp-7">
+              <h2><i>07</i>Swap</h2>
+              <p>SWAP is the exchange layer of DRYHOLE. Its purpose is to provide a place where supported assets and tokens can be exchanged within the ecosystem.</p>
+              <p>SWAP is separate from DRILL and STAKE, but remains part of the same protocol environment.</p>
+              <p>The exact supported assets, routing, fees and implementation details are not finalized.</p>
+            </section>
+            <section id="wp-8">
+              <h2><i>08</i>Market</h2>
+              <p>MARKET is the marketplace layer of DRYHOLE. It provides a place for DRYHOLE NFTs and other supported assets to be bought and sold.</p>
+              <p>The distinction between Collection and Market is intentional:</p>
+              <ul>
+                <li><b>Collection.</b> Explore the NFTs and assets that exist within DRYHOLE.</li>
+                <li><b>Market.</b> Explore assets that are available for acquisition.</li>
+              </ul>
+              <p>Listing rules, pricing, settlement and marketplace mechanics will be defined as the Market system is finalized.</p>
+            </section>
+            <section id="wp-9">
+              <h2><i>09</i>The DRYHOLE Economy</h2>
+              <p>The DRYHOLE economy connects the protocol's major components. The intended relationship is:</p>
+              <p><b>NFT</b> &darr; <b>DRILL</b> &darr; <b>TOKEN</b> &darr; <b>STAKE</b> &darr; <b>ETH</b></p>
+              <p>Each layer has a different role:</p>
+              <ul>
+                <li><b>NFTs</b> provide the drilling asset.</li>
+                <li><b>DRILL</b> connects NFTs to the protocol's token utility.</li>
+                <li><b>TOKEN</b> provides the economic utility layer.</li>
+                <li><b>STAKE</b> gives the token a role within an ETH reward system.</li>
+                <li><b>SWAP</b> provides an exchange layer.</li>
+                <li><b>MARKET</b> provides a marketplace for supported assets.</li>
+              </ul>
+              <p>All of these systems operate around the same Epoch-based protocol structure.</p>
+            </section>
+            <section id="wp-10">
+              <h2><i>10</i>The Complete Cycle</h2>
+              <p>A complete DRYHOLE cycle can be understood through the following sequence:</p>
+              <ul>
+                <li><b>1 day.</b> One Epoch.</li>
+                <li><b>Epoch.</b> The cycle opens.</li>
+                <li><b>Drill.</b> NFT participates in the drilling system.</li>
+                <li><b>Token.</b> Drilling connects to token utility.</li>
+                <li><b>Stake.</b> Token participates in the staking system.</li>
+                <li><b>ETH.</b> ETH is the reward asset.</li>
+                <li><b>Next Epoch.</b> The cycle begins again.</li>
+              </ul>
+              <p>The purpose of the Epoch system is to keep these activities within a shared protocol rhythm rather than treating them as unrelated features.</p>
+            </section>
+            <section id="wp-11">
+              <h2><i>11</i>Collection</h2>
+              <p>The Collection is the public record of DRYHOLE NFTs. It provides a place to explore the assets associated with the protocol.</p>
+              <p>Collection and Market serve different purposes. Collection focuses on what exists. Market focuses on what is available. The Collection is therefore part of the discovery layer of DRYHOLE, while Market serves the exchange layer.</p>
+            </section>
+            <section id="wp-12">
+              <h2><i>12</i>Protocol Design</h2>
+              <p>DRYHOLE is designed around a simple principle: <b>every component should have a role.</b></p>
+              <ul>
+                <li>NFTs are connected to DRILL.</li>
+                <li>DRILL is connected to TOKEN.</li>
+                <li>TOKEN is connected to STAKE.</li>
+                <li>STAKE connects to ETH.</li>
+                <li>SWAP and MARKET provide additional ways for assets and value to move within the ecosystem.</li>
+              </ul>
+              <p>The Epoch system provides the common timing structure that connects these components. This keeps the protocol understandable while allowing individual modules to evolve independently.</p>
+            </section>
+            <section id="wp-13">
+              <h2><i>13</i>Parameters &amp; Finalization</h2>
+              <p>This White Paper intentionally does not establish economic parameters that have not yet been finalized. The following may be defined separately as development progresses:</p>
+              <ul>
+                <li>Token supply</li>
+                <li>Token distribution</li>
+                <li>Emission</li>
+                <li>Drilling rate</li>
+                <li>Drilling rewards</li>
+                <li>Staking rewards</li>
+                <li>ETH distribution</li>
+                <li>Staking duration</li>
+                <li>Fees</li>
+                <li>Marketplace parameters</li>
+                <li>Swap parameters</li>
+                <li>Contract addresses</li>
+              </ul>
+              <p>Until officially defined, these values should be treated as not finalized.</p>
+            </section>
+            <section id="wp-14">
+              <h2><i>14</i>Roadmap</h2>
+              <p><b>Phase 1 — Foundation</b></p>
+              <ul>
+                <li>DRYHOLE website</li>
+                <li>Public introduction</li>
+                <li>Protocol documentation</li>
+                <li>Open App interface</li>
+                <li>Swap interface</li>
+                <li>Initial token infrastructure</li>
+                <li>NFT integration</li>
+              </ul>
+              <p><b>Phase 2 — Protocol</b></p>
+              <ul>
+                <li>Genesis / NFT system</li>
+                <li>DRILL</li>
+                <li>Epoch system</li>
+                <li>TOKEN utility</li>
+                <li>STAKE</li>
+                <li>ETH reward system</li>
+                <li>MARKET</li>
+                <li>Collection</li>
+              </ul>
+              <p><b>Phase 3 — Expansion</b></p>
+              <p>Further protocol development and additional systems. Coming soon.</p>
+            </section>
+            <section id="wp-15">
+              <h2><i>15</i>Final Note</h2>
+              <p>DRYHOLE is built around a simple idea: <b>you do not know what is underneath until you drill.</b></p>
+              <p>The protocol provides the structure around that idea through recurring Epochs, NFT-based drilling, token utility, staking, exchange and marketplace layers.</p>
+              <p><b>1 day = 1 Epoch.</b></p>
+              <p><b>NFT</b> &rarr; <b>DRILL</b> &rarr; <b>TOKEN</b> &rarr; <b>STAKE</b> &rarr; <b>ETH</b></p>
+              <p>Find something.<br>Or find nothing.</p>
+            </section>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ COLLECTION ============ -->
+  <div class="page" id="page-collection" data-page="collection" hidden>
+    <div class="pg-head">
+      <div><div class="label">Global collection</div><h1>DRYHOLE COLLECTION</h1></div>
+      <p>Every result produced by the protocol. This is the shared collection, not a personal inventory.</p>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="foot"><span>PLACEHOLDER GRID</span><span>NO DATA CONNECTED</span></div>
+  </div>
+
+  <!-- ============ PLACEHOLDER PAGES ============ -->
+  <div class="page" id="page-drill" data-page="drill" hidden></div>
+  <div class="page" id="page-stake" data-page="stake" hidden></div>
+  <div class="page" id="page-swap" data-page="swap" hidden></div>
+  <div class="page" id="page-market" data-page="market" hidden></div>
+
+  </div>
+
+  <div class="foot"><span>DRYHOLE TERMINAL</span><span>INTERFACE PREVIEW - UI ONLY</span></div>
+</main>
+
+<script>
+(function(){
+  var b=document.body;
+  var titleEl=document.getElementById('pageTitle');
+  var tabsEl=document.getElementById('homeTabs');
+  var items=document.querySelectorAll('#nav .nav');
+  var pages=document.querySelectorAll('.page');
+  var tabs=document.querySelectorAll('.tab');
+  var tabPanels={overview:document.getElementById('tp-overview'),mint:document.getElementById('tp-mint'),paper:document.getElementById('tp-paper')};
+
+  function drawer(o){b.classList.toggle('open',o)}
+  document.getElementById('open').addEventListener('click',function(){drawer(true)});
+  document.getElementById('scrim').addEventListener('click',function(){drawer(false)});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')drawer(false)});
+
+  /* Placeholder pages: same terminal look, no functionality */
+  var copy={
+    drill:['Drilling system','Use DRYHOLE NFTs for the drilling system and rewards.'],
+    stake:['Stake','Lock DRYHOLE NFTs to participate in the staking system.'],
+    swap:['Swap','Swap supported assets and tokens.'],
+    market:['Market','NFT marketplace for DRYHOLE assets.']
+  };
+  Object.keys(copy).forEach(function(k){
+    var el=document.getElementById('page-'+k);
+    el.innerHTML='<div class="pg-head"><div><div class="label">'+copy[k][0]+'</div><h1>'+k.toUpperCase()+'</h1></div><p>'+copy[k][1]+'</p></div>'
+      +'<section class="panel ph-panel"><div class="ph"><span class="label">Module status</span><span class="label">Offline</span></div>'
+      +'<div class="ph-body" aria-hidden="true"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>'
+      +'<div class="ph-note label">UI placeholder. Functionality is not connected yet.</div></section>';
+  });
+
+  /* Collection placeholder grid */
+  var g=document.getElementById('grid'),h='';
+  for(var i=1;i<=12;i++){
+    var id=('000'+i).slice(-4);
+    h+='<div class="panel nft"><div class="art" aria-hidden="true"></div><div class="meta"><span>HOLE #'+id+'</span><span>EMPTY</span></div></div>';
+  }
+  g.innerHTML=h;
+
+  /* Page navigation (sidebar) */
+  function show(name){
+    items.forEach(function(a){
+      var on=a.getAttribute('data-page')===name;
+      a.classList.toggle('active',on);
+      if(on){a.setAttribute('aria-current','page')}else{a.removeAttribute('aria-current')}
+    });
+    pages.forEach(function(p){p.hidden=p.getAttribute('data-page')!==name});
+    tabsEl.hidden=(name!=='home');
+    document.getElementById('pageHead').hidden=(name==='home');
+    titleEl.textContent=name.charAt(0).toUpperCase()+name.slice(1);
+    drawer(false);
+    window.scrollTo(0,0);
+  }
+  items.forEach(function(a){a.addEventListener('click',function(e){
+    var pg=a.getAttribute('data-page');
+    if(pg!=='home')return; /* halaman lain = file sendiri, biarkan link jalan */
+    e.preventDefault();
+    show(pg);
+  })});
+  document.querySelectorAll('[data-go]').forEach(function(btn){
+    btn.addEventListener('click',function(){location.href=btn.getAttribute('data-go')+'.html'});
+  });
+
+  /* Home tabs (inside Home content only) */
+  function setTab(name,focus){
+    tabs.forEach(function(t){
+      var on=t.getAttribute('data-tab')===name;
+      t.classList.toggle('active',on);
+      t.setAttribute('aria-selected',on?'true':'false');
+      t.tabIndex=on?0:-1;
+      if(on&&focus)t.focus();
+    });
+    Object.keys(tabPanels).forEach(function(k){tabPanels[k].hidden=(k!==name)});
+    window.scrollTo(0,0);
+  }
+  tabs.forEach(function(t,idx){
+    t.addEventListener('click',function(){setTab(t.getAttribute('data-tab'))});
+    t.addEventListener('keydown',function(e){
+      if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
+        var n=tabs[(idx+(e.key==='ArrowRight'?1:tabs.length-1))%tabs.length];
+        setTab(n.getAttribute('data-tab'),true);
+      }
+    });
+  });
+
+  /* Mint data. null = not available yet; the UI shows an em dash.
+     Replace with real contract/API data later, then call renderMint(). */
+  var MINT_DATA={
+    totalMinted:null,currentPhase:null,currentEpoch:null,
+    mintPrice:null,maxMint:null,phaseSupply:null,
+    phases:[] /* [{supply:..., price:...}] indexed by phase 0..10 */
+  };
+  function mv(v){return (v===null||v===undefined||v==='')?'\u2014':String(v)}
+  function renderMint(){
+    document.querySelectorAll('#tp-mint [data-mint]').forEach(function(el){
+      var k=el.getAttribute('data-mint');
+      if(k==='phaseBadge'){el.textContent=mv(MINT_DATA.currentPhase===null?null:'Phase '+MINT_DATA.currentPhase);return}
+      if(k==='supply'||k==='price'){
+        var p=(MINT_DATA.phases||[])[+el.parentNode.getAttribute('data-phase')]||{};
+        el.textContent=mv(p[k]);return;
+      }
+      el.textContent=mv(MINT_DATA[k]);
+    });
+  }
+  renderMint();
+
+  /* Mint quantity selector (UI only) */
+  var qv=document.getElementById('qtyVal'),qn=1;
+  function setQty(n){var mx=+MINT_DATA.maxMint;qn=Math.max(1,(mx>0)?Math.min(mx,n):n);qv.textContent=qn}
+  document.getElementById('qtyMinus').addEventListener('click',function(){setQty(qn-1)});
+  document.getElementById('qtyPlus').addEventListener('click',function(){setQty(qn+1)});
+  document.querySelectorAll('[data-noop]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault()})});
+
+  /* White paper contents: smooth in-page jump */
+  document.querySelectorAll('#toc a').forEach(function(a){
+    a.addEventListener('click',function(e){
+      e.preventDefault();
+      var t=document.getElementById(a.getAttribute('href').slice(1));
+      if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  });
+})();
+</script>
+<script type="module" src="wallet.js"></script>
+</body>
+</html>
