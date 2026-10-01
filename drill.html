@@ -223,6 +223,8 @@ main{margin-left:var(--side);padding:32px 48px 64px;max-width:1240px}
 .pkc.cur{border-color:rgba(184,255,0,.55);background:#152016}
 .pkc.used{opacity:.4;cursor:not-allowed}
 .pkc.used:hover{border-color:var(--line)}
+.pkc .im{flex-direction:column;text-align:center}
+.pkc .im small{display:block;max-width:100%;padding:4px;font-size:8px;line-height:1.25;word-break:break-all;color:var(--mute)}
 .pkm{padding:30px 16px;text-align:center}
 .pkm .nx{margin-top:16px}
 @media(min-width:700px){.pk{align-items:center}.pkb{border-radius:3px}}
@@ -407,9 +409,10 @@ main{margin-left:var(--side);padding:32px 48px 64px;max-width:1240px}
 
     function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
     function two(n){return (n<10?'0':'')+n}
-    function mkImg(list){
+    var DEBUG=/[?&]debug=1/.test(location.search);
+    function mkImg(list,onFail){
       var im=document.createElement('img'),k=0;im.alt='';im.loading='lazy';
-      im.onerror=function(){k++;if(k<list.length)im.src=list[k];else im.remove()};
+      im.onerror=function(){k++;if(k<list.length)im.src=list[k];else{im.remove();if(onFail)onFail()}};
       im.src=list[0];return im;
     }
 
@@ -484,9 +487,18 @@ main{margin-left:var(--side);padding:32px 48px 64px;max-width:1240px}
         var u=used[n.id],cur=chosen[active]&&chosen[active].id===n.id;
         var b=el('button','pkc'+(u!=null?' used':'')+(cur?' cur':''));b.type='button';
         var im=el('span','im','#'+n.id);
+        function note(info,code){
+          im.textContent='#'+n.id+' \u00B7 '+code;
+          if(DEBUG){
+            var d=el('small',null,'uri: '+(info.uri||'-')+' | img: '+((info.images&&info.images[0])||'-'));
+            im.appendChild(d);
+          }
+        }
         DrillNFT.getTokenInfo(n.id).then(function(info){
-          if(info.images&&info.images.length){im.textContent='';im.appendChild(mkImg(info.images))}
-          else if(info.err){im.textContent='#'+n.id+' \u00B7 '+info.err}
+          if(info.images&&info.images.length){
+            im.textContent='';
+            im.appendChild(mkImg(info.images,function(){note(info,'IMG FAIL')}));
+          }else if(info.err){note(info,info.err)}
         });
         var tt=el('span','tt');tt.appendChild(el('span',null,'#'+n.id));
         if(u!=null)tt.appendChild(el('i',null,'SLOT '+two(u+1)));else if(cur)tt.appendChild(el('i',null,'CURRENT'));
