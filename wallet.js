@@ -1,7 +1,7 @@
 /* DRYHOLE — wallet.js
  * Wallet connect via Reown AppKit (ethers adapter), Robinhood Chain mainnet.
  * Isi PROJECT_ID di bawah, lalu allowlist domain situs di cloud.reown.com.
- * Dipakai di SEMUA halaman (index, genesis, drill, swap, market, leaderboard, docs):
+ * Dipakai di SEMUA halaman (index, genesis, drill, swap, market, leaderboard, docs, profile):
  * <script type="module" src="wallet.js"></script>
  */
 
