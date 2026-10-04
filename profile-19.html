@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DRYHOLE - Profile</title>
+<style>
+:root{
+  --bg:#0D1110; --panel:#121815; --panel2:#1B211D; --line:#293128;
+  --lime:#B8FF00; --text:#E8ECE5; --mute:#7B847C;
+  --sans:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --side:264px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body{min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:1px solid var(--lime);outline-offset:2px}
+.mono{font-family:var(--mono)}
+.label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mute);text-transform:uppercase}
+
+/* Sidebar */
+.side{position:fixed;inset:0 auto 0 0;width:var(--side);background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:28px 18px 20px;z-index:30;transition:transform .25s ease}
+.brand{padding:0 8px 22px;border-bottom:1px solid var(--line)}
+.brand b{display:block;font-size:22px;font-weight:700;letter-spacing:.22em}
+.brand span{display:block;margin-top:6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.3em;color:var(--mute)}
+.ws{padding:24px 8px 10px}
+nav{display:flex;flex-direction:column;gap:4px}
+.nav{display:flex;align-items:center;gap:14px;padding:11px 12px;border:1px solid transparent;border-radius:3px;color:var(--mute);font-size:14px;letter-spacing:.02em;transition:color .15s,background .15s,border-color .15s}
+.nav .ic{width:18px;text-align:center;font-size:15px;font-family:var(--mono)}
+.nav .dot{margin-left:auto;width:6px;height:6px;border-radius:50%;background:transparent}
+.nav:hover{color:var(--text);background:var(--panel2)}
+.nav.active{color:var(--lime);background:#152016;border-color:rgba(184,255,0,.45);box-shadow:0 0 18px rgba(184,255,0,.08),inset 0 0 12px rgba(184,255,0,.04)}
+.nav.active .dot{background:var(--lime);box-shadow:0 0 8px var(--lime)}
+.note{margin-top:auto;border:1px solid var(--line);border-radius:3px;padding:16px;background:var(--bg)}
+.note p{margin-top:12px;font-size:15px;line-height:1.45;color:var(--text)}
+.note p i{display:block;color:var(--mute);font-style:normal}
+.note .tick{margin-top:14px;height:1px;background:var(--line);position:relative}
+.note .tick:after{content:"";position:absolute;left:0;top:-1px;width:28px;height:3px;background:var(--lime)}
+
+/* Top bar (mobile) */
+.top{display:none}
+.scrim{display:none}
+
+/* Main */
+main{margin-left:var(--side);padding:32px 48px 64px;max-width:1240px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:3px}
+.ph{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line)}
+.live{display:inline-flex;align-items:center;gap:8px;color:var(--lime)}
+.live:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime)}
+.sec{margin-top:56px}
+
+/* Content header (all pages) + Home tabs */
+.mh{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.tlinks{display:flex;flex-direction:row;align-items:center;gap:16px}
+.tlinks a{display:inline-flex;align-items:center;gap:6px;color:var(--text,inherit);text-decoration:none}
+.mh-title{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.24em;text-transform:uppercase}
+.wallet{display:block;width:100%;margin-top:12px;text-align:center;padding:13px 18px;border:1px solid rgba(184,255,0,.45);border-radius:3px;background:#152016;color:var(--lime);font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;transition:background .15s,color .15s}
+.wallet:hover{background:var(--lime);color:var(--bg)}
+.pg-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:28px}
+.pg-head h1{margin-top:12px;font-size:clamp(30px,4vw,48px);line-height:1.04;font-weight:600;letter-spacing:-.02em}
+.pg-head p{max-width:360px;font-size:14px;line-height:1.6;color:var(--mute)}
+@media (max-width:860px){
+  .side{transform:translateX(-100%);width:min(300px,86vw);box-shadow:none}
+  body.open .side{transform:none;box-shadow:24px 0 60px rgba(0,0,0,.6)}
+  .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s;z-index:20}
+  body.open .scrim{opacity:1;pointer-events:auto}
+  .top{display:flex;position:sticky;top:0;z-index:10;align-items:center;gap:14px;padding:12px 16px;background:rgba(13,17,16,.94);border-bottom:1px solid var(--line)}
+  .burger{width:40px;height:40px;border:1px solid var(--line);border-radius:3px;display:grid;place-content:center;gap:5px}
+  .burger i{display:block;width:18px;height:1px;background:var(--text)}
+  .top b{font-size:15px;letter-spacing:.22em}
+  .top .tlinks{margin-left:auto}
+  .mh-links{display:none}
+  main{margin-left:0;padding:24px 18px 48px}
+}
+
+
+/* ===== PROFILE module ===== */
+.pg-head{margin-top:28px}
+.addr{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.addr .a{font-family:var(--mono);font-size:13px;letter-spacing:.16em;overflow-wrap:anywhere}
+.cp{padding:6px 12px;border:1px solid var(--line);border-radius:3px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);transition:border-color .15s,color .15s}
+.cp:hover{border-color:var(--lime);color:var(--lime)}
+.pbody{padding:20px 18px}
+.st{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;margin-bottom:14px}
+.sec{margin-top:40px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.stat{padding:20px 18px}
+.stat b{display:block;margin-top:12px;font-family:var(--mono);font-size:clamp(20px,2.6vw,30px);font-weight:600;letter-spacing:.06em;overflow-wrap:anywhere}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:13px 18px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row .v{font-family:var(--mono);font-size:13px;letter-spacing:.1em;text-align:right}
+.row .v.dim{color:var(--mute)}
+.gmsg{padding:36px 16px;text-align:center;border:1px dashed var(--line);border-radius:3px;background:#0B110E}
+.gmsg b{display:block;font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.2em;text-transform:uppercase}
+.gmsg p{margin:10px 0 18px;font-size:13.5px;line-height:1.5;color:var(--mute)}
+.gbtn{display:inline-block;padding:14px 28px;border:1px solid rgba(184,255,0,.45);border-radius:3px;background:#152016;color:var(--lime);font-family:var(--mono);font-size:12px;letter-spacing:.24em;text-transform:uppercase;white-space:nowrap;transition:background .15s,color .15s}
+.gbtn:hover{background:var(--lime);color:var(--bg)}
+.tabs{display:flex;gap:8px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.tab{padding:10px 16px;border:1px solid var(--line);border-radius:3px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);transition:border-color .15s,color .15s,background .15s}
+.tab i{font-style:normal;margin-left:8px;opacity:.7}
+.tab:hover{border-color:var(--mute);color:var(--text)}
+.tab.on{border-color:rgba(184,255,0,.45);background:#152016;color:var(--lime)}
+.nfts{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.nft{position:relative;display:block;border:1px solid var(--line);border-radius:3px;background:#0B110E;overflow:hidden}
+.nft .im{display:block;aspect-ratio:1/1;border-bottom:1px solid var(--line);background:linear-gradient(var(--line) 1px,transparent 1px) 0 0/14px 14px,linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/14px 14px;background-color:#0B110E}
+.nft .im svg{display:block;width:100%;height:100%}
+.nft .tt{display:flex;justify-content:space-between;align-items:center;padding:9px 10px;font-family:var(--mono);font-size:12px;letter-spacing:.12em}
+.nft .lk{font-size:9.5px;letter-spacing:.14em;color:var(--lime)}
+.nft.lock{border-color:rgba(184,255,0,.45);background:#152016}
+.pager{display:flex;gap:8px;margin-top:18px}
+.pager:empty{display:none}
+.pgb{min-width:36px;height:36px;padding:0 10px;border:1px solid var(--line);border-radius:3px;background:var(--bg);color:var(--mute);font-family:var(--mono);font-size:12px;letter-spacing:.1em;transition:border-color .15s,color .15s,background .15s}
+.pgb:hover{border-color:var(--lime);color:var(--lime)}
+.pgb.on{border-color:var(--lime);background:#152016;color:var(--lime)}
+.pgb:disabled{opacity:.4;cursor:not-allowed}
+@media (max-width:700px){.nfts{grid-template-columns:repeat(2,minmax(0,1fr))}.stats,.two{grid-template-columns:minmax(0,1fr);gap:16px}.sec{margin-top:32px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="burger" id="open" aria-label="Open menu" aria-controls="side"><i></i><i></i><i></i></button>
+  <b>DRYHOLE</b>
+  <nav class="tlinks" aria-label="Links">
+    <a class="label" href="https://x.com/dryholedrill" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <a class="label" href="docs.html">Docs</a>
+  </nav>
+</header>
+<div class="scrim" id="scrim"></div>
+
+<aside class="side" id="side">
+  <div class="brand"><b>DRYHOLE</b></div>
+  <div class="ws label">Workspace</div>
+  <nav id="nav">
+    <a class="nav" href="index.html"><span class="ic">&#9638;</span>Home<i class="dot"></i></a>
+    <a class="nav" href="genesis.html"><span class="ic">&#9672;</span>Genesis<i class="dot"></i></a>
+    <a class="nav" href="drill.html"><span class="ic">&#9935;&#xFE0E;</span>Drill<i class="dot"></i></a>
+    <div class="ws label">Economy</div>
+    <a class="nav" href="swap.html"><span class="ic">&#8644;</span>Swap<i class="dot"></i></a>
+    <a class="nav" href="stake.html"><span class="ic">&#9678;</span>Stake<i class="dot"></i></a>
+    <a class="nav" href="burn.html"><span class="ic">&#9650;</span>Burn<i class="dot"></i></a>
+    <a class="nav" href="market.html"><span class="ic">&#9637;</span>Market<i class="dot"></i></a>
+    <a class="nav" href="leaderboard.html"><span class="ic">&#9776;</span>Leaderboard<i class="dot"></i></a>
+  </nav>
+  <div class="note">
+    <div class="label">The Dryhole Network</div>
+    <p>Find something.<i>Or find nothing.</i></p>
+    <div class="tick"></div>
+  </div>
+  <button class="wallet" type="button">Connect Wallet</button>
+</aside>
+
+
+<main>
+  <header class="mh">
+    <div class="mh-title">Dryhole &gt; Profile</div>
+    <nav class="tlinks mh-links" aria-label="Links">
+    <a class="label" href="https://x.com/dryholedrill" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <a class="label" href="docs.html">Docs</a>
+    </nav>
+  </header>
+
+  <div class="pg-head">
+    <div class="addr" id="addrRow" hidden>
+      <span class="a" id="addrTxt">&mdash;</span>
+      <button class="cp" id="cpBtn" type="button">Copy</button>
+    </div>
+  </div>
+
+  <div id="conn" class="gmsg">
+    <b>Wallet not connected</b>
+    <p>Connect your wallet to see your points, Genesis setup and holdings.</p>
+    <button class="gbtn" id="connBtn" type="button">Connect Wallet</button>
+  </div>
+
+  <div id="data" hidden>
+    <div class="stats">
+      <section class="panel stat"><span class="label">Total Points</span><b id="tPts">&mdash;</b></section>
+      <section class="panel stat"><span class="label">Current Epoch</span><b id="tEpoch">&mdash;</b></section>
+      <section class="panel stat"><span class="label">Power</span><b id="tPower">&mdash;</b></section>
+    </div>
+
+    <div class="sec">
+      <h2 class="st">Protocol Activity</h2>
+      <div class="two">
+        <section class="panel">
+          <div class="ph"><span class="label">Genesis</span></div>
+          <div class="row"><span class="label">Generation</span><span class="v" id="gGen">&mdash;</span></div>
+          <div class="row"><span class="label">Allocated</span><span class="v" id="gAlloc">&mdash;</span></div>
+          <div class="row"><span class="label">Locked</span><span class="v" id="gLock">&mdash;</span></div>
+          <div class="row"><span class="label">Power</span><span class="v" id="gPower">&mdash;</span></div>
+        </section>
+        <section class="panel">
+          <div class="ph"><span class="label">Drill</span></div>
+          <div class="row"><span class="label">V1 NFTs</span><span class="v" id="dV1">&mdash;</span></div>
+          <div class="row"><span class="label">Genesis NFTs</span><span class="v" id="dV2">&mdash;</span></div>
+          <div class="row"><span class="label">Status</span><span class="v" id="dSt">&mdash;</span></div>
+        </section>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="two">
+        <div><h2 class="st">Wallet Assets</h2>
+      <section class="panel">
+        <div class="row"><span class="label">ETH</span><span class="v" id="wEth">&mdash;</span></div>
+        <div class="row"><span class="label">USDG</span><span class="v" id="wUsdg">&mdash;</span></div>
+        <div class="row"><span class="label">Dryhole</span><span class="v" id="wDry">&mdash;</span></div>
+      </section></div>
+        <div><h2 class="st">Stake</h2>
+      <section class="panel">
+        <div class="row"><span class="label">Dryhole Staked</span><span class="v" id="sStk">&mdash;</span></div>
+        <div class="row"><span class="label">Reward</span><span class="v" id="sRew">&mdash;</span></div>
+        <div class="row"><span class="label">Status</span><span class="v" id="sSt">&mdash;</span></div>
+      </section></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h2 class="st">NFT Holdings</h2>
+      <section class="panel">
+        <div class="tabs" role="tablist" aria-label="NFT collection">
+          <button class="tab on" type="button" role="tab" aria-selected="true" data-k="v1">V1 <i id="cV1">&mdash;</i></button>
+          <button class="tab" type="button" role="tab" aria-selected="false" data-k="v2">Genesis <i id="cV2">&mdash;</i></button>
+        </div>
+        <div class="pbody">
+          <div id="nftBody"></div>
+          <div class="pager" id="pager" role="navigation" aria-label="NFT pages"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+<script src="nft.js"></script>
+<script>
+(function(){
+  var b=document.body;
+  function drawer(o){b.classList.toggle('open',o)}
+  document.getElementById('open').addEventListener('click',function(){drawer(true)});
+  document.getElementById('scrim').addEventListener('click',function(){drawer(false)});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')drawer(false)});
+  document.querySelectorAll('#nav a').forEach(function(a){a.addEventListener('click',function(){drawer(false)})});
+  window.addEventListener('pageshow',function(){drawer(false)});
+
+  /* ===== Profile ===== */
+  var $=function(id){return document.getElementById(id)};
+  var DASH='\u2014';
+  var GEN_API='https://dgiecwbcehihocpsdems.supabase.co/functions/v1/genesis';
+  var RPC='https://rpc.mainnet.chain.robinhood.com';
+  /* Isi alamat kontrak token begitu tersedia. Kosong = tampil "-" (tidak ada data palsu). */
+  var TOKENS={USDG:'',DRYHOLE:''};
+  var addr=null,srv=null,fetchedAt=0,nfts={v1:null,v2:null},tab='v1',page=1,PER=12,IMGS={};
+
+  function set(id,t){$(id).textContent=t}
+  function num(n){return Number(n).toLocaleString('en-US')}
+  function cnt(n,w){return n==null?DASH:num(n)+(w?' '+w:'')}
+
+  /* ----- Points / Genesis (server) ----- */
+  function loadStatus(){
+    if(!addr){srv=null;renderStatus();return}
+    var a=addr;
+    fetch(GEN_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'status',address:a})})
+      .then(function(r){return r.json().then(function(j){if(!r.ok)throw 0;return j})})
+      .then(function(j){if(a!==addr)return;srv=j;fetchedAt=Date.now();renderStatus()})
+      .catch(function(){if(a===addr){srv=null;renderStatus()}});
+  }
+  function renderStatus(){
+    var s=srv&&srv.session,ep=DASH;
+    if(srv){
+      ep='0';
+      if(s){
+        var now=Date.parse(srv.server_time)+(Date.now()-fetchedAt);
+        var el=Math.min(now,Date.parse(s.ends_at))-Date.parse(s.started_at);
+        ep=num(s.power*Math.max(0,Math.floor(el/3600000)));
+      }
+    }
+    var pw=s?s.power+' PTS / HOUR':DASH,n=s?s.nft_ids.length:0;
+    set('tPts',srv?num(srv.points||0):DASH);
+    set('tEpoch',ep);
+    set('tPower',pw);
+    set('gGen',s?'GEN '+s.gen:DASH);
+    set('gAlloc',srv?cnt(n,n===1?'NFT':'NFTs'):DASH);
+    set('gLock',srv?cnt(n,n===1?'NFT':'NFTs'):DASH);
+    set('gPower',pw);
+  }
+
+  /* ----- NFT holdings (nft.js) ----- */
+  function pad(n,l){n=String(n);while(n.length<l)n='0'+n;return n}
+  function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+  /* Placeholder artwork (sprite generated), dipakai kalau gambar asli belum ada */
+  function nftArt(id){
+    var r=rng(id*7919+13),pal=['#7B847C','#B9C1B8','#E8ECE5'],body=pal[Math.floor(r()*3)];
+    var s='<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><rect width="8" height="8" fill="#0B110E"/>';
+    for(var y=0;y<8;y++)for(var x=0;x<4;x++){
+      var on=(x>=2&&y>=1&&y<=6)?r()<.8:r()<.45;
+      if(!on)continue;
+      var c=r()<.12?'#B8FF00':body;
+      s+='<rect x="'+x+'" y="'+y+'" width="1" height="1" fill="'+c+'"/><rect x="'+(7-x)+'" y="'+y+'" width="1" height="1" fill="'+c+'"/>';
+    }
+    return s+'<rect x="2" y="3" width="1" height="1" fill="#B8FF00"/><rect x="5" y="3" width="1" height="1" fill="#B8FF00"/></svg>';
+  }
+  function artOf(k,id){
+    var u=IMGS[k+id];
+    if(!u||!u.length)return nftArt(id);
+    return '<img src="'+u[0]+'" alt="" data-k="'+k+'" data-id="'+id+'" data-i="0" onerror="ProfileView.imgErr(this)" style="display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated">';
+  }
+  function imgErr(el){
+    var k=el.getAttribute('data-k'),id=el.getAttribute('data-id'),i=+el.getAttribute('data-i')+1,u=IMGS[k+id];
+    if(u&&i<u.length){el.setAttribute('data-i',i);el.src=u[i];return}
+    IMGS[k+id]=null;if(el.parentNode)el.parentNode.innerHTML=nftArt(+id);
+  }
+  function loadNfts(){
+    nfts={v1:null,v2:null};page=1;renderNfts();
+    if(!addr||!window.DrillNFT)return;
+    var a=addr;
+    ['v1','v2'].forEach(function(k){
+      DrillNFT.getUserNFTs(a,k).then(function(l){
+        if(a!==addr)return;
+        var ids=l.map(function(x){return +x.id});nfts[k]=ids;renderNfts();
+        if(k!=='v2')return; /* info gambar: hanya Genesis (V2) */
+        return Promise.all(ids.map(function(id){return DrillNFT.getTokenInfo(id)})).then(function(inf){
+          if(a!==addr)return;inf.forEach(function(t){IMGS[k+t.id]=t.images});renderNfts();
+        });
+      }).catch(function(){});
+    });
+  }
+  function renderNfts(){
+    var l1=nfts.v1,l2=nfts.v2;
+    set('cV1',l1?num(l1.length):DASH);set('cV2',l2?num(l2.length):DASH);
+    set('dV1',cnt(l1&&l1.length));set('dV2',cnt(l2&&l2.length));
+    [].forEach.call(document.querySelectorAll('.tab'),function(t){
+      var on=t.getAttribute('data-k')===tab;t.classList.toggle('on',on);t.setAttribute('aria-selected',on?'true':'false');
+    });
+    var box=$('nftBody'),pg=$('pager'),l=nfts[tab],name=tab==='v1'?'V1':'Genesis';
+    pg.innerHTML='';
+    if(l==null){box.innerHTML='<div class="gmsg"><b>No data</b><p>NFT data is not available yet.</p></div>';return}
+    if(!l.length){box.innerHTML='<div class="gmsg"><b>No '+name+' NFTs</b><p>This wallet holds no '+name+' NFTs.</p></div>';return}
+    var lock={};
+    if(tab==='v2'&&srv&&srv.session)srv.session.nft_ids.forEach(function(id){lock[id]=1});
+    var pages=Math.ceil(l.length/PER);if(page>pages)page=pages;
+    var h='<div class="nfts" role="list" aria-label="'+name+' NFTs">';
+    l.slice((page-1)*PER,page*PER).forEach(function(id){
+      h+='<div class="nft'+(lock[id]?' lock':'')+'" role="listitem"><span class="im">'+artOf(tab,id)+'</span><span class="tt"><span>#'+pad(id,4)+'</span>'+(lock[id]?'<span class="lk">LOCKED</span>':'')+'</span></div>';
+    });
+    box.innerHTML=h+'</div>';
+    if(pages>1){
+      var p='';
+      for(var i=1;i<=pages;i++)p+='<button class="pgb'+(i===page?' on':'')+'" type="button" data-p="'+i+'"'+(i===page?' aria-current="page"':'')+'>'+i+'</button>';
+      pg.innerHTML=p+'<button class="pgb" type="button" id="pgNext" aria-label="Next page"'+(page>=pages?' disabled':'')+'>\u203a</button>';
+    }
+  }
+  document.addEventListener('click',function(e){
+    var t=e.target;if(!t.closest)return;
+    var tb=t.closest('.tab');
+    if(tb){tab=tb.getAttribute('data-k');page=1;renderNfts();return}
+    var pb=t.closest('.pgb');
+    if(pb&&!pb.disabled){
+      if(pb.id==='pgNext')page++;else page=+pb.getAttribute('data-p');
+      renderNfts();
+    }
+  });
+
+  /* ----- Wallet assets (read langsung dari chain) ----- */
+  function rpc(method,params){
+    return fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:method,params:params})})
+      .then(function(r){return r.json()}).then(function(j){if(typeof j.result!=='string')throw 0;return j.result});
+  }
+  function units(hex,dec){
+    var v=BigInt(hex),d=BigInt(10)**BigInt(dec),f=(v%d).toString();
+    while(f.length<dec)f='0'+f;
+    f=f.slice(0,4).replace(/0+$/,'');
+    return num((v/d).toString())+(f?'.'+f:'');
+  }
+  function token(id,ca){
+    if(!/^0x[0-9a-fA-F]{40}$/.test(ca))return;
+    var a=addr,data='0x70a08231'+('000000000000000000000000'+a.slice(2).toLowerCase());
+    Promise.all([rpc('eth_call',[{to:ca,data:data},'latest']),rpc('eth_call',[{to:ca,data:'0x313ce567'},'latest'])])
+      .then(function(r){if(a===addr)set(id,units(r[0],parseInt(r[1],16)))}).catch(function(){});
+  }
+  function loadAssets(){
+    set('wEth',DASH);set('wUsdg',DASH);set('wDry',DASH);
+    if(!addr)return;
+    var a=addr;
+    rpc('eth_getBalance',[a,'latest']).then(function(h){if(a===addr)set('wEth',units(h,18))}).catch(function(){});
+    token('wUsdg',TOKENS.USDG);token('wDry',TOKENS.DRYHOLE);
+  }
+
+  /* ----- Wallet hooks (wallet.js owns the connection) ----- */
+  function render(){
+    var on=!!addr;
+    $('conn').hidden=on;$('data').hidden=!on;$('addrRow').hidden=!on;
+    if(on){set('addrTxt',addr.slice(0,6)+'...'+addr.slice(-4));$('addrTxt').title=addr}
+  }
+  function setAddr(a){
+    a=a||null;if(a===addr)return;
+    addr=a;srv=null;render();renderStatus();loadStatus();loadNfts();loadAssets();
+  }
+  window.ProfileView={setAddress:setAddr,imgErr:imgErr};
+  window.GenesisView=window.GenesisView||{setAddress:setAddr};
+  window.DrillPicker=window.DrillPicker||{setAddress:setAddr};
+  if(window.ethereum){
+    try{window.ethereum.request({method:'eth_accounts'}).then(function(a){if(a&&a[0])setAddr(a[0])}).catch(function(){})}catch(e){}
+    if(window.ethereum.on)window.ethereum.on('accountsChanged',function(a){setAddr(a&&a[0])});
+  }
+
+  $('connBtn').addEventListener('click',function(){var w=document.querySelector('.side .wallet');if(w)w.click()});
+  $('cpBtn').addEventListener('click',function(){
+    if(!addr||!navigator.clipboard)return;
+    navigator.clipboard.writeText(addr).then(function(){
+      var c=$('cpBtn');c.textContent='Copied';setTimeout(function(){c.textContent='Copy'},1500);
+    }).catch(function(){});
+  });
+
+  render();renderStatus();renderNfts();
+  setInterval(function(){if(addr){loadStatus();loadAssets()}},60000);
+})();
+</script>
+<script type="module" src="wallet.js"></script>
+</body>
+</html>
