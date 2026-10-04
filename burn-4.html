@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DRYHOLE - Burn</title>
+<style>
+:root{
+  --bg:#0D1110; --panel:#121815; --panel2:#1B211D; --line:#293128;
+  --lime:#B8FF00; --text:#E8ECE5; --mute:#7B847C;
+  --sans:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --side:264px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body{min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:1px solid var(--lime);outline-offset:2px}
+.mono{font-family:var(--mono)}
+.label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mute);text-transform:uppercase}
+
+/* Sidebar */
+.side{position:fixed;inset:0 auto 0 0;width:var(--side);background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:28px 18px 20px;z-index:30;transition:transform .25s ease}
+.brand{padding:0 8px 22px;border-bottom:1px solid var(--line)}
+.brand b{display:block;font-size:22px;font-weight:700;letter-spacing:.22em}
+.brand span{display:block;margin-top:6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.3em;color:var(--mute)}
+.ws{padding:24px 8px 10px}
+nav{display:flex;flex-direction:column;gap:4px}
+.nav{display:flex;align-items:center;gap:14px;padding:11px 12px;border:1px solid transparent;border-radius:3px;color:var(--mute);font-size:14px;letter-spacing:.02em;transition:color .15s,background .15s,border-color .15s}
+.nav .ic{width:18px;text-align:center;font-size:15px;font-family:var(--mono)}
+.nav .dot{margin-left:auto;width:6px;height:6px;border-radius:50%;background:transparent}
+.nav:hover{color:var(--text);background:var(--panel2)}
+.nav.active{color:var(--lime);background:#152016;border-color:rgba(184,255,0,.45);box-shadow:0 0 18px rgba(184,255,0,.08),inset 0 0 12px rgba(184,255,0,.04)}
+.nav.active .dot{background:var(--lime);box-shadow:0 0 8px var(--lime)}
+.note{margin-top:auto;border:1px solid var(--line);border-radius:3px;padding:16px;background:var(--bg)}
+.note p{margin-top:12px;font-size:15px;line-height:1.45;color:var(--text)}
+.note p i{display:block;color:var(--mute);font-style:normal}
+.note .tick{margin-top:14px;height:1px;background:var(--line);position:relative}
+.note .tick:after{content:"";position:absolute;left:0;top:-1px;width:28px;height:3px;background:var(--lime)}
+
+/* Top bar (mobile) */
+.top{display:none}
+.scrim{display:none}
+
+/* Main */
+main{margin-left:var(--side);padding:32px 48px 64px;max-width:1240px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:3px}
+.ph{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line)}
+.live{display:inline-flex;align-items:center;gap:8px;color:var(--lime)}
+.live:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime)}
+.sec{margin-top:56px}
+
+/* Content header (all pages) + Home tabs */
+.mh{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.tlinks{display:flex;flex-direction:row;align-items:center;gap:16px}
+.tlinks a{display:inline-flex;align-items:center;gap:6px;color:var(--text,inherit);text-decoration:none}
+.mh-title{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.24em;text-transform:uppercase}
+.wallet{display:block;width:100%;margin-top:12px;text-align:center;padding:13px 18px;border:1px solid rgba(184,255,0,.45);border-radius:3px;background:#152016;color:var(--lime);font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;transition:background .15s,color .15s}
+.wallet:hover{background:var(--lime);color:var(--bg)}
+.pg-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:28px}
+.pg-head h1{margin-top:12px;font-size:clamp(30px,4vw,48px);line-height:1.04;font-weight:600;letter-spacing:-.02em}
+.pg-head p{max-width:360px;font-size:14px;line-height:1.6;color:var(--mute)}
+@media (max-width:860px){
+  .side{transform:translateX(-100%);width:min(300px,86vw);box-shadow:none}
+  body.open .side{transform:none;box-shadow:24px 0 60px rgba(0,0,0,.6)}
+  .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s;z-index:20}
+  body.open .scrim{opacity:1;pointer-events:auto}
+  .top{display:flex;position:sticky;top:0;z-index:10;align-items:center;gap:14px;padding:12px 16px;background:rgba(13,17,16,.94);border-bottom:1px solid var(--line)}
+  .burger{width:40px;height:40px;border:1px solid var(--line);border-radius:3px;display:grid;place-content:center;gap:5px}
+  .burger i{display:block;width:18px;height:1px;background:var(--text)}
+  .top b{font-size:15px;letter-spacing:.22em}
+  .top .tlinks{margin-left:auto}
+  .mh-links{display:none}
+  main{margin-left:0;padding:24px 18px 48px}
+}
+
+/* ===== BURN module ===== */
+.pages{margin-top:28px}
+.bhero{padding:56px 24px 48px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:20px}
+.bbadge{display:inline-flex;align-items:center;gap:10px;padding:9px 16px;border:1px solid rgba(184,255,0,.45);border-radius:3px;background:#152016;color:var(--lime);font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;box-shadow:0 0 18px rgba(184,255,0,.08),inset 0 0 12px rgba(184,255,0,.04)}
+.bbadge:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime)}
+.bhero h1{font-family:var(--mono);font-size:22px;letter-spacing:.22em;font-weight:600;text-transform:uppercase;color:var(--text)}
+.bhero p{max-width:560px;font-size:14.5px;line-height:1.7;color:var(--mute)}
+.bhero p b{color:var(--text);font-weight:600}
+.bflow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0 18px 18px}
+.bstep{border:1px solid var(--line);border-radius:3px;background:var(--bg);padding:16px}
+.bstep .label{display:block;margin-bottom:8px}
+.bstep span.t{font-size:13.5px;line-height:1.55;color:var(--text)}
+.bbtn{margin:0 18px 18px;width:calc(100% - 36px);height:46px;border:1px dashed var(--line);border-radius:3px;background:transparent;color:var(--mute);font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;cursor:not-allowed;opacity:.7}
+@media (max-width:700px){.bflow{grid-template-columns:1fr}.bhero{padding:40px 18px 36px}.bhero h1{font-size:18px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="burger" id="open" aria-label="Open menu" aria-controls="side"><i></i><i></i><i></i></button>
+  <b>DRYHOLE</b>
+  <nav class="tlinks" aria-label="Links">
+    <a class="label" href="https://x.com/dryholedrill" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <a class="label" href="docs.html">Docs</a>
+  </nav>
+</header>
+<div class="scrim" id="scrim"></div>
+
+<aside class="side" id="side">
+  <div class="brand"><b>DRYHOLE</b></div>
+  <div class="ws label">Workspace</div>
+  <nav id="nav">
+    <a class="nav" href="index.html"><span class="ic">&#9638;</span>Home<i class="dot"></i></a>
+    <a class="nav" href="genesis.html"><span class="ic">&#9672;</span>Genesis<i class="dot"></i></a>
+    <a class="nav" href="drill.html"><span class="ic">&#9935;&#xFE0E;</span>Drill<i class="dot"></i></a>
+    <div class="ws label">Economy</div>
+    <a class="nav" href="swap.html"><span class="ic">&#8644;</span>Swap<i class="dot"></i></a>
+    <a class="nav" href="stake.html"><span class="ic">&#9678;</span>Stake<i class="dot"></i></a>
+    <a class="nav active" href="burn.html" aria-current="page"><span class="ic">&#9650;</span>Burn<i class="dot"></i></a>
+    <a class="nav" href="market.html"><span class="ic">&#9637;</span>Market<i class="dot"></i></a>
+    <a class="nav" href="leaderboard.html"><span class="ic">&#9776;</span>Leaderboard<i class="dot"></i></a>
+  </nav>
+  <div class="note">
+    <div class="label">The Dryhole Network</div>
+    <p>Find something.<i>Or find nothing.</i></p>
+    <div class="tick"></div>
+  </div>
+  <button class="wallet" type="button">Connect Wallet</button>
+</aside>
+
+
+<main>
+  <header class="mh">
+    <div class="mh-title">Dryhole &gt; Burn</div>
+    <nav class="tlinks mh-links" aria-label="Links">
+    <a class="label" href="https://x.com/dryholedrill" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <a class="label" href="docs.html">Docs</a>
+    </nav>
+  </header>
+
+  <div class="pages">
+    <section class="panel">
+      <div class="ph"><span class="label">V1 Burn</span><span class="label">Coming soon</span></div>
+      <div class="bhero">
+        <span class="bbadge">Coming soon</span>
+        <h1>Burn your V1 NFT</h1>
+        <p>Burn your <b>V1 NFTs</b> and swap them for <b>ETH</b> or <b>Dryhole token</b>. Choose your reward when burning goes live.</p>
+      </div>
+      <div class="bflow">
+        <div class="bstep"><span class="label">01 / Select</span><span class="t">Pick the V1 NFTs you want to burn from your wallet.</span></div>
+        <div class="bstep"><span class="label">02 / Burn</span><span class="t">Burn them permanently. This action cannot be undone.</span></div>
+        <div class="bstep"><span class="label">03 / Claim</span><span class="t">Receive ETH or Dryhole token as your reward.</span></div>
+      </div>
+      <button class="bbtn" type="button" disabled aria-disabled="true">Burn unavailable</button>
+    </section>
+  </div>
+</main>
+<script>
+(function(){
+  var b=document.body;
+  function drawer(o){b.classList.toggle('open',o)}
+  document.getElementById('open').addEventListener('click',function(){drawer(true)});
+  document.getElementById('scrim').addEventListener('click',function(){drawer(false)});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')drawer(false)});
+  document.querySelectorAll('#nav a').forEach(function(a){a.addEventListener('click',function(){drawer(false)})});
+  window.addEventListener('pageshow',function(){drawer(false)});
+})();
+</script>
+<script type="module" src="wallet.js"></script>
+</body>
+</html>

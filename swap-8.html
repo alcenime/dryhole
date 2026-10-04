@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DRYHOLE - Swap</title>
+<style>
+:root{
+  --bg:#0D1110; --panel:#121815; --panel2:#1B211D; --line:#293128;
+  --lime:#B8FF00; --text:#E8ECE5; --mute:#7B847C;
+  --sans:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --side:264px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+body{min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:1px solid var(--lime);outline-offset:2px}
+.mono{font-family:var(--mono)}
+.label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--mute);text-transform:uppercase}
+
+/* Sidebar */
+.side{position:fixed;inset:0 auto 0 0;width:var(--side);background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:28px 18px 20px;z-index:30;transition:transform .25s ease}
+.brand{padding:0 8px 22px;border-bottom:1px solid var(--line)}
+.brand b{display:block;font-size:22px;font-weight:700;letter-spacing:.22em}
+.brand span{display:block;margin-top:6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.3em;color:var(--mute)}
+.ws{padding:24px 8px 10px}
+nav{display:flex;flex-direction:column;gap:4px}
+.nav{display:flex;align-items:center;gap:14px;padding:11px 12px;border:1px solid transparent;border-radius:3px;color:var(--mute);font-size:14px;letter-spacing:.02em;transition:color .15s,background .15s,border-color .15s}
+.nav .ic{width:18px;text-align:center;font-size:15px;font-family:var(--mono)}
+.nav .dot{margin-left:auto;width:6px;height:6px;border-radius:50%;background:transparent}
+.nav:hover{color:var(--text);background:var(--panel2)}
+.nav.active{color:var(--lime);background:#152016;border-color:rgba(184,255,0,.45);box-shadow:0 0 18px rgba(184,255,0,.08),inset 0 0 12px rgba(184,255,0,.04)}
+.nav.active .dot{background:var(--lime);box-shadow:0 0 8px var(--lime)}
+.note{margin-top:auto;border:1px solid var(--line);border-radius:3px;padding:16px;background:var(--bg)}
+.note p{margin-top:12px;font-size:15px;line-height:1.45;color:var(--text)}
+.note p i{display:block;color:var(--mute);font-style:normal}
+.note .tick{margin-top:14px;height:1px;background:var(--line);position:relative}
+.note .tick:after{content:"";position:absolute;left:0;top:-1px;width:28px;height:3px;background:var(--lime)}
+
+/* Top bar (mobile) */
+.top{display:none}
+.scrim{display:none}
+
+/* Main */
+main{margin-left:var(--side);padding:32px 48px 64px;max-width:1240px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:3px}
+.ph{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line)}
+.live{display:inline-flex;align-items:center;gap:8px;color:var(--lime)}
+.live:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime)}
+.sec{margin-top:56px}
+
+/* Content header (all pages) + Home tabs */
+.mh{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.tlinks{display:flex;flex-direction:row;align-items:center;gap:16px}
+.tlinks a{display:inline-flex;align-items:center;gap:6px;color:var(--text,inherit);text-decoration:none}
+.mh-title{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.24em;text-transform:uppercase}
+.wallet{display:block;width:100%;margin-top:12px;text-align:center;padding:13px 18px;border:1px solid rgba(184,255,0,.45);border-radius:3px;background:#152016;color:var(--lime);font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;transition:background .15s,color .15s}
+.wallet:hover{background:var(--lime);color:var(--bg)}
+.pg-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:28px}
+.pg-head h1{margin-top:12px;font-size:clamp(30px,4vw,48px);line-height:1.04;font-weight:600;letter-spacing:-.02em}
+.pg-head p{max-width:360px;font-size:14px;line-height:1.6;color:var(--mute)}
+@media (max-width:860px){
+  .side{transform:translateX(-100%);width:min(300px,86vw);box-shadow:none}
+  body.open .side{transform:none;box-shadow:24px 0 60px rgba(0,0,0,.6)}
+  .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s;z-index:20}
+  body.open .scrim{opacity:1;pointer-events:auto}
+  .top{display:flex;position:sticky;top:0;z-index:10;align-items:center;gap:14px;padding:12px 16px;background:rgba(13,17,16,.94);border-bottom:1px solid var(--line)}
+  .burger{width:40px;height:40px;border:1px solid var(--line);border-radius:3px;display:grid;place-content:center;gap:5px}
+  .burger i{display:block;width:18px;height:1px;background:var(--text)}
+  .top b{font-size:15px;letter-spacing:.22em}
+  .top .tlinks{margin-left:auto}
+  .mh-links{display:none}
+  main{margin-left:0;padding:24px 18px 48px}
+}
+
+/* ===== SWAP module ===== */
+.stabs{display:flex;border-bottom:1px solid var(--line);margin-top:28px}
+.stab{flex:1;padding:13px 0;margin-bottom:-1px;border-bottom:2px solid transparent;color:var(--mute);font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;text-align:left;transition:color .15s,border-color .15s}
+.stab i{font-style:normal;margin-right:8px}
+.stab:hover{color:var(--text)}
+.stab.active{color:var(--lime);border-bottom-color:var(--lime)}
+.swrap{max-width:none;margin-top:28px}
+.sw-body{padding:22px 18px 20px}
+.st{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.2em;text-transform:uppercase}
+.stsub{margin-top:8px;font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;color:var(--mute);text-transform:uppercase}
+.io{position:relative;margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:2px;background:var(--bg)}
+.io:before{content:"";position:absolute;left:-1px;top:-1px;width:9px;height:9px;border-top:2px solid var(--lime);border-left:2px solid var(--lime);opacity:.7}
+.io-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tok{display:inline-flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--line);border-radius:2px;background:var(--panel);font-family:var(--mono);font-size:15px;font-weight:600;letter-spacing:.14em}
+.tok:before{content:"";width:8px;height:8px;border:1px solid var(--lime)}
+.tok.hi{border-color:rgba(184,255,0,.45);color:var(--lime)}
+.tok.hi:before{background:var(--lime)}
+.amt{margin-top:14px;width:100%;background:none;border:0;border-bottom:1px solid var(--line);padding:4px 0 10px;color:var(--text);font-family:var(--mono);font-size:30px;letter-spacing:.06em;outline:0}
+.amt::placeholder{color:var(--text)}
+.amt:disabled{cursor:not-allowed;opacity:1}
+.amt.out,.amt.out::placeholder{color:var(--mute)}
+.io-bot{display:flex;justify-content:space-between;margin-top:10px}
+.io-bot b{font-family:var(--mono);font-size:12px;letter-spacing:.14em;font-weight:500}
+.dir{display:grid;place-items:center;width:34px;height:34px;margin:-9px auto;position:relative;z-index:1;border:1px solid var(--line);border-radius:2px;background:var(--panel);color:var(--lime);font-family:var(--mono);font-size:16px}
+.rate{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:12px 14px;border:1px solid var(--line);border-radius:2px}
+.rate b{font-family:var(--mono);font-size:12px;letter-spacing:.14em;font-weight:500}
+.go{display:block;width:100%;margin-top:16px;padding:15px 18px;border:1px solid var(--line);border-radius:3px;background:#0B110E;color:var(--mute);font-family:var(--mono);font-size:12.5px;letter-spacing:.2em;text-transform:uppercase;cursor:not-allowed}
+.status{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.status b{font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--lime);font-weight:500}
+.tok img{width:18px;height:18px;border-radius:50%;display:block}
+.tok.ni:before{display:none}
+@media (max-width:860px){.swrap{max-width:none}.amt{font-size:26px}}
+.pick{position:relative}
+.car{font-style:normal;margin-left:4px;font-size:12px;color:var(--mute)}
+.menu{position:absolute;right:0;top:calc(100% + 6px);min-width:100%;z-index:5;background:var(--panel);border:1px solid var(--line);border-radius:2px;display:flex;flex-direction:column}
+.opt{display:flex;align-items:center;gap:10px;padding:11px 14px;font-family:var(--mono);font-size:14px;letter-spacing:.14em;color:var(--mute);text-align:left;border-top:1px solid var(--line);white-space:nowrap}
+.opt:first-child{border-top:0}
+.opt img{width:18px;height:18px;border-radius:50%}
+.opt .sq{width:8px;height:8px;border:1px solid var(--lime);background:var(--lime)}
+.opt:hover,.opt[aria-selected=true]{color:var(--lime);background:#152016}
+button.tok{cursor:pointer;color:var(--mute);transition:border-color .15s,color .15s}
+button.tok:hover{color:var(--text)}
+button.tok.on{border-color:rgba(184,255,0,.6);color:var(--lime);background:#152016}
+.tok img{width:18px;height:18px;border-radius:50%;display:block}
+.sflow{margin-top:18px;border:1px solid var(--line);border-radius:3px;background:var(--panel)}
+.sflow .fr{display:grid;grid-template-columns:130px minmax(0,1fr);gap:14px;align-items:center;padding:14px 16px;border-top:1px solid var(--line)}
+.sflow .fr:first-child{border-top:0}
+.sflow .fr .label{color:var(--lime)}
+.sflow .steps{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.sflow .sp{padding:6px 10px;border:1px solid var(--line);border-radius:3px;background:var(--bg);font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.sflow .ar{color:var(--lime);font-family:var(--mono);font-size:12px}
+.snote{margin-top:14px;font-size:13.5px;line-height:1.6;color:var(--mute)}
+.snote a{color:var(--lime)}
+@media (max-width:600px){.sflow .fr{grid-template-columns:1fr;gap:8px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="burger" id="open" aria-label="Open menu" aria-controls="side"><i></i><i></i><i></i></button>
+  <b>DRYHOLE</b>
+  <nav class="tlinks" aria-label="Links">
+    <a class="label" href="https://x.com/dryholedrill" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <a class="label" href="docs.html">Docs</a>
+  </nav>
+</header>
+<div class="scrim" id="scrim"></div>
+
+<aside class="side" id="side">
+  <div class="brand"><b>DRYHOLE</b></div>
+  <div class="ws label">Workspace</div>
+  <nav id="nav">
+    <a class="nav" href="index.html"><span class="ic">&#9638;</span>Home<i class="dot"></i></a>
+    <a class="nav" href="genesis.html"><span class="ic">&#9672;</span>Genesis<i class="dot"></i></a>
+    <a class="nav" href="drill.html"><span class="ic">&#9935;&#xFE0E;</span>Drill<i class="dot"></i></a>
+    <div class="ws label">Economy</div>
+    <a class="nav active" href="swap.html" aria-current="page"><span class="ic">&#8644;</span>Swap<i class="dot"></i></a>
+    <a class="nav" href="stake.html"><span class="ic">&#9678;</span>Stake<i class="dot"></i></a>
+    <a class="nav" href="burn.html"><span class="ic">&#9650;</span>Burn<i class="dot"></i></a>
+    <a class="nav" href="market.html"><span class="ic">&#9637;</span>Market<i class="dot"></i></a>
+    <a class="nav" href="leaderboard.html"><span class="ic">&#9776;</span>Leaderboard<i class="dot"></i></a>
+  </nav>
+  <div class="note">
+    <div class="label">The Dryhole Network</div>
+    <p>Find something.<i>Or find nothing.</i></p>
+    <div class="tick"></div>
+  </div>
+  <button class="wallet" type="button">Connect Wallet</button>
+</aside>
+
+
+<main>
+  <header class="mh">
+    <div class="mh-title">Dryhole &gt; Swap</div>
+    <nav class="tlinks mh-links" aria-label="Links">
+    <a class="label" href="https://x.com/dryholedrill" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <a class="label" href="docs.html">Docs</a>
+    </nav>
+  </header>
+
+  <div class="pages">
+    <div class="stabs" id="sTabs" role="tablist" aria-label="Swap">
+      <button class="stab active" role="tab" id="t-buy" data-tab="buy" aria-selected="true" aria-controls="p-buy">Buy</button>
+      <button class="stab" role="tab" id="t-sell" data-tab="sell" aria-selected="false" aria-controls="p-sell" tabindex="-1">Sell</button>
+      <button class="stab" role="tab" id="t-convert" data-tab="convert" aria-selected="false" aria-controls="p-convert" tabindex="-1">Convert</button>
+    </div>
+    <div class="swrap">
+
+      <section class="panel" id="p-buy" role="tabpanel" aria-labelledby="t-buy">
+        <div class="ph"><span class="label">ETH &rarr; DRYHOLE</span></div>
+        <div class="sw-body">
+          <h2 class="st">Buy DRYHOLE</h2>
+          <div class="io">
+            <div class="io-top"><span class="label">From</span><span class="tok ni"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSI+CiAgPHBhdGggZmlsbD0iIzYyN0VFQSIgZD0iTTE2IDMyYzguODM3IDAgMTYtNy4xNjMgMTYtMTZTMjQuODM3IDAgMTYgMCAwIDcuMTYzIDAgMTZzNy4xNjMgMTYgMTYgMTZaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIuNTUiIGQ9Ik0xNi40OTggNHY4Ljg3bDcuNDk3IDMuMzVMMTYuNDk4IDRaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTE2LjQ5OCA0IDkgMTYuMjJsNy40OTgtMy4zNVY0WiIvPgogIDxwYXRoIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iLjU1IiBkPSJNMTYuNDk4IDIxLjk2OHY2LjAyN0wyNCAxNy42MTZsLTcuNTAyIDQuMzUyWiIvPgogIDxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0xNi40OTggMjcuOTk1di02LjAyOEw5IDE3LjYxNmw3LjQ5OCAxMC4zNzlaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIuMiIgZD0ibTE2LjQ5OCAyMC41NzMgNy40OTctNC4zNTMtNy40OTctMy4zNDh2Ny43MDFaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIuNTUiIGQ9Im05IDE2LjIyIDcuNDk4IDQuMzUzdi03LjcwMUw5IDE2LjIyWiIvPgo8L3N2Zz4K" alt="" width="18" height="18">ETH</span></div>
+            <input class="amt" type="text" inputmode="decimal" placeholder="0.00" disabled aria-label="ETH amount">
+            <div class="io-bot"><span class="label">Balance</span><b>&mdash;</b></div>
+          </div>
+          <div class="dir" aria-hidden="true">&darr;</div>
+          <div class="io">
+            <div class="io-top"><span class="label">To</span><span class="tok hi">DRYHOLE</span></div>
+            <input class="amt out" type="text" placeholder="&mdash;" disabled aria-label="DRYHOLE amount">
+          </div>
+          <div class="rate"><span class="label">Rate</span><b>&mdash;</b></div>
+          <button class="go" type="button" disabled>[ BUY DRYHOLE ]</button>
+          <div class="status"><span class="label">Status</span><b>Coming Soon</b></div>
+        </div>
+      </section>
+
+      <section class="panel" id="p-sell" role="tabpanel" aria-labelledby="t-sell" hidden>
+        <div class="ph"><span class="label">DRYHOLE &rarr; ETH</span></div>
+        <div class="sw-body">
+          <h2 class="st">Sell DRYHOLE</h2>
+          <div class="io">
+            <div class="io-top"><span class="label">From</span><span class="tok hi">DRYHOLE</span></div>
+            <input class="amt" type="text" inputmode="decimal" placeholder="0.00" disabled aria-label="DRYHOLE amount">
+            <div class="io-bot"><span class="label">Balance</span><b>&mdash;</b></div>
+          </div>
+          <div class="dir" aria-hidden="true">&darr;</div>
+          <div class="io">
+            <div class="io-top"><span class="label">To</span><span class="tok ni"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSI+CiAgPHBhdGggZmlsbD0iIzYyN0VFQSIgZD0iTTE2IDMyYzguODM3IDAgMTYtNy4xNjMgMTYtMTZTMjQuODM3IDAgMTYgMCAwIDcuMTYzIDAgMTZzNy4xNjMgMTYgMTYgMTZaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIuNTUiIGQ9Ik0xNi40OTggNHY4Ljg3bDcuNDk3IDMuMzVMMTYuNDk4IDRaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTE2LjQ5OCA0IDkgMTYuMjJsNy40OTgtMy4zNVY0WiIvPgogIDxwYXRoIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iLjU1IiBkPSJNMTYuNDk4IDIxLjk2OHY2LjAyN0wyNCAxNy42MTZsLTcuNTAyIDQuMzUyWiIvPgogIDxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0xNi40OTggMjcuOTk1di02LjAyOEw5IDE3LjYxNmw3LjQ5OCAxMC4zNzlaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIuMiIgZD0ibTE2LjQ5OCAyMC41NzMgNy40OTctNC4zNTMtNy40OTctMy4zNDh2Ny43MDFaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIuNTUiIGQ9Im05IDE2LjIyIDcuNDk4IDQuMzUzdi03LjcwMUw5IDE2LjIyWiIvPgo8L3N2Zz4K" alt="" width="18" height="18">ETH</span></div>
+            <input class="amt out" type="text" placeholder="&mdash;" disabled aria-label="ETH amount">
+          </div>
+          <div class="rate"><span class="label">Rate</span><b>&mdash;</b></div>
+          <button class="go" type="button" disabled>[ SELL DRYHOLE ]</button>
+          <div class="status"><span class="label">Status</span><b>Coming Soon</b></div>
+        </div>
+      </section>
+
+      <section class="panel" id="p-convert" role="tabpanel" aria-labelledby="t-convert" hidden>
+        <div class="ph"><span class="label" id="cPh">POINTS &rarr; DRYHOLE</span></div>
+        <div class="sw-body">
+          <h2 class="st">Convert Points</h2>
+          <div class="io">
+            <div class="io-top"><span class="label">From</span><span class="tok">Genesis Points</span></div>
+            <input class="amt" type="text" inputmode="decimal" placeholder="0" disabled aria-label="Points to convert">
+            <div class="io-bot"><span class="label">Available Points</span><b>&mdash;</b></div>
+          </div>
+          <div class="dir" aria-hidden="true">&darr;</div>
+          <div class="io">
+            <div class="io-top"><span class="label">To</span><div class="pick" id="cpick"><button type="button" class="tok on" id="ccur" aria-haspopup="listbox" aria-expanded="false"><img id="cimg" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSI+CiAgPHBhdGggZmlsbD0iIzYyN0VFQSIgZD0iTTE2IDMyYzguODM3IDAgMTYtNy4xNjMgMTYtMTZTMjQuODM3IDAgMTYgMCAwIDcuMTYzIDAgMTZzNy4xNjMgMTYgMTYgMTZaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIuNTUiIGQ9Ik0xNi40OTggNHY4Ljg3bDcuNDk3IDMuMzVMMTYuNDk4IDRaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTE2LjQ5OCA0IDkgMTYuMjJsNy40OTgtMy4zNVY0WiIvPgogIDxwYXRoIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iLjU1IiBkPSJNMTYuNDk4IDIxLjk2OHY2LjAyN0wyNCAxNy42MTZsLTcuNTAyIDQuMzUyWiIvPgogIDxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0xNi40OTggMjcuOTk1di02LjAyOEw5IDE3LjYxNmw3LjQ5OCAxMC4zNzlaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIuMiIgZD0ibTE2LjQ5OCAyMC41NzMgNy40OTctNC4zNTMtNy40OTctMy4zNDh2Ny43MDFaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIuNTUiIGQ9Im05IDE2LjIyIDcuNDk4IDQuMzUzdi03LjcwMUw5IDE2LjIyWiIvPgo8L3N2Zz4K" alt="" width="18" height="18" hidden><span id="cname">DRYHOLE</span><em class="car">&#9662;</em></button><div class="menu" id="cmenu" role="listbox" hidden><button type="button" class="opt" role="option" data-t="DRYHOLE" aria-selected="true"><span class="sq"></span>DRYHOLE</button><button type="button" class="opt" role="option" data-t="ETH" aria-selected="false"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSI+CiAgPHBhdGggZmlsbD0iIzYyN0VFQSIgZD0iTTE2IDMyYzguODM3IDAgMTYtNy4xNjMgMTYtMTZTMjQuODM3IDAgMTYgMCAwIDcuMTYzIDAgMTZzNy4xNjMgMTYgMTYgMTZaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIuNTUiIGQ9Ik0xNi40OTggNHY4Ljg3bDcuNDk3IDMuMzVMMTYuNDk4IDRaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTE2LjQ5OCA0IDkgMTYuMjJsNy40OTgtMy4zNVY0WiIvPgogIDxwYXRoIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iLjU1IiBkPSJNMTYuNDk4IDIxLjk2OHY2LjAyN0wyNCAxNy42MTZsLTcuNTAyIDQuMzUyWiIvPgogIDxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0xNi40OTggMjcuOTk1di02LjAyOEw5IDE3LjYxNmw3LjQ5OCAxMC4zNzlaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIuMiIgZD0ibTE2LjQ5OCAyMC41NzMgNy40OTctNC4zNTMtNy40OTctMy4zNDh2Ny43MDFaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZmlsbC1vcGFjaXR5PSIuNTUiIGQ9Im05IDE2LjIyIDcuNDk4IDQuMzUzdi03LjcwMUw5IDE2LjIyWiIvPgo8L3N2Zz4K" alt="" width="18" height="18">ETH</button></div></div></div>
+            <input class="amt out" type="text" placeholder="&mdash;" disabled id="cOut" aria-label="Estimated DRYHOLE">
+            <div class="io-bot"><span class="label" id="cEst">Estimated DRYHOLE</span><b>&mdash;</b></div>
+          </div>
+          <div class="rate"><span class="label">Conversion Rate</span><b>TBA</b></div>
+          <button class="go" type="button" disabled>[ CONVERT ]</button>
+          <div class="status"><span class="label">Status</span><b>Coming Soon</b></div>
+        </div>
+      </section>
+
+      <div id="sx">
+      <div class="sflow" aria-label="Economy flow">
+        <div class="fr"><span class="label">Rewards</span>
+          <div class="steps"><span class="sp">Genesis</span><span class="ar">&rarr;</span><span class="sp">Points</span><span class="ar">&rarr;</span><span class="sp">Epoch Reward</span><span class="ar">&rarr;</span><span class="sp">Convert</span><span class="ar">&rarr;</span><span class="sp">DRYHOLE</span></div></div>
+        <div class="fr"><span class="label">Token</span>
+          <div class="steps"><span class="sp">DRYHOLE</span><span class="ar">&rarr;</span><span class="sp">Buy</span><span class="ar">&rarr;</span><span class="sp">Sell</span><span class="ar">&rarr;</span><span class="sp">Market</span><span class="ar">&rarr;</span><span class="sp">Stake</span></div></div>
+      </div>
+      <p class="snote">Buy and Sell are for the Dryhole native token only. NFT trading happens on the <a href="market.html">Market</a>.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+  var b=document.body;
+  function drawer(o){b.classList.toggle('open',o)}
+  document.getElementById('open').addEventListener('click',function(){drawer(true)});
+  document.getElementById('scrim').addEventListener('click',function(){drawer(false)});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')drawer(false)});
+  document.querySelectorAll('#nav a').forEach(function(a){a.addEventListener('click',function(){drawer(false)})});
+  window.addEventListener('pageshow',function(){drawer(false)});
+  var cc=document.getElementById('ccur'),cm=document.getElementById('cmenu'),co=[].slice.call(cm.querySelectorAll('.opt'));
+  function cmenu(o){cm.hidden=!o;cc.setAttribute('aria-expanded',o)}
+  cc.addEventListener('click',function(e){e.stopPropagation();cmenu(cm.hidden)});
+  document.addEventListener('click',function(){cmenu(false)});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')cmenu(false)});
+  co.forEach(function(o){o.addEventListener('click',function(){var t=o.dataset.t,eth=t==='ETH';
+    co.forEach(function(x){x.setAttribute('aria-selected',x===o)});
+    document.getElementById('cname').textContent=t;
+    document.getElementById('cimg').hidden=!eth;cc.classList.toggle('ni',eth);
+    document.getElementById('cPh').innerHTML='POINTS &rarr; '+t;
+    document.getElementById('cEst').textContent='Estimated '+t;
+    document.getElementById('cOut').setAttribute('aria-label','Estimated '+t);
+    cmenu(false)})});
+  var tabs=[].slice.call(document.querySelectorAll('#sTabs .stab'));
+  function show(n){tabs.forEach(function(t){var on=t.dataset.tab===n;t.classList.toggle('active',on);t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1;document.getElementById('p-'+t.dataset.tab).hidden=!on});document.getElementById('sx').hidden=(n==='convert')}
+  tabs.forEach(function(t,i){t.addEventListener('click',function(){show(t.dataset.tab)});t.addEventListener('keydown',function(e){var k=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;if(k){var n=tabs[(i+k+tabs.length)%tabs.length];n.focus();show(n.dataset.tab)}})});
+})();
+</script>
+<script type="module" src="wallet.js"></script>
+</body>
+</html>
